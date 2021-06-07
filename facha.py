@@ -23,9 +23,10 @@ async def on_ready():
     cursor = db.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS frases(
-            id_frase TEXT,
+            id_frase INTEGER NOT NULL UNIQUE,
             descripcion TEXT,
-            usuario TEXT
+            usuario TEXT,
+            PRIMARY KEY(id_frase AUTOINCREMENT)
         )
     ''')
     await bot.change_presence(activity=discord.Game('esculpir el tiempo'))
@@ -52,7 +53,7 @@ async def frase(ctx):
         frase_descripcion = cursor.fetchone()
         await ctx.send(frase_descripcion[0])
     except Exception as exc:
-        await ctx.send('No anda nada: {}'.format(exc))
+        await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
     cursor.close()
     db.close()
 
@@ -68,7 +69,7 @@ async def insert_frase(ctx, frase, autor):
             result = cursor.execute(sql, val)
             await ctx.send("Frase agregada товарищ!")
         except Exception as exc:
-            await ctx.send('No anda nada: {}'.format(exc))
+            await ctx.send('No anda nada cuando guarda las frases: {}'.format(exc))
         db.commit()
         cursor.close()
         db.close()
