@@ -127,20 +127,29 @@ async def buscame(ctx,*,movie_to_search):
 
 @bot.command()
 async def agregarTop(ctx,*,link_top):
-    autor = ctx.message.author.name
     db = sqlite3.connect('main.sqlite')
     cursor = db.cursor()
-    sql = ("INSERT INTO tops(link, usuario) VALUES (?,?)")
-    val = (link_top, autor)
-    try:
-        result = cursor.execute(sql, val)
-        await ctx.send("Top agregado товарищ!")
-    except Exception as exc:
-        await ctx.send('No anda nada cuando guardo el top: {}'.format(exc))
+    autor = ctx.message.author.name
+    top = buscar_top(autor)
+    if top == None:
+        sql = ("INSERT INTO tops(link, usuario) VALUES (?,?)")
+        val = (link_top, autor)
+        try:
+            result = cursor.execute(sql, val)
+            await ctx.send("Top agregado товарищ!")
+        except Exception as exc:
+            await ctx.send('No anda nada cuando guardo el top: {}'.format(exc))
+    else:
+        sql = (f"UPDATE tops SET link = '{link_top}' WHERE usuario = '{autor}'")
+        #val = (link_top, autor)
+        try:
+            result = cursor.execute(sql)
+            await ctx.send('Top actualizado товарищ!')
+        except Exception as exc:
+            await ctx.send('No anda nada cuando guardo el top: {}'.format(exc))
     db.commit()
     cursor.close()
     db.close()
-
 
 
 def buscar_top(autor):
@@ -150,7 +159,7 @@ def buscar_top(autor):
         cursor.execute(f"SELECT link FROM tops WHERE usuario = '{autor}'")
         top_link = cursor.fetchone()
         if top_link == None:
-            return "Todavia no existe un top para " + autor
+            return None
         else:
             return top_link[0]
     except Exception as exc:
@@ -165,14 +174,20 @@ def buscar_top(autor):
 async def miTop(ctx):
     autor = ctx.message.author.name
     top = buscar_top(autor)
-    await ctx.send(top)
+    if top == None:
+        await ctx.send("Todavia no existe un top para " + autor)
+    else:
+        await ctx.send(top)
 
 
 
 @bot.command()
 async def top(ctx,*,usuario):
     top = buscar_top(usuario)
-    await ctx.send(top)
+    if top == None:
+        await ctx.send("Todavia no existe un top para " + autor)
+    else:
+        await ctx.send(top)
 
 
 
