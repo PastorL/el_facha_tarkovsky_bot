@@ -21,24 +21,7 @@ async def on_message(message):
 
 @bot.event
 async def on_ready():
-    db = sqlite3.connect('main.sqlite')
-    cursor = db.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS frases(
-            id_frase INTEGER NOT NULL UNIQUE,
-            descripcion TEXT,
-            usuario TEXT,
-            PRIMARY KEY(id_frase AUTOINCREMENT)
-        )
-    ''')
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS tops(
-            id_top INTEGER NOT NULL UNIQUE,
-            link TEXT,
-            usuario TEXT,
-            PRIMARY KEY(id_top AUTOINCREMENT)
-        )
-    ''')
+    #crear_tablas()
     await bot.change_presence(activity=discord.Game('esculpir el tiempo'))
     print('Привет друзья!')
 
@@ -217,5 +200,26 @@ async def limpiar(ctx, amount=2):
 async def limpiar_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('Hermano no me pediste nada.')
+
+def crear_tablas():
+    db = sqlite3.connect('main.sqlite')
+    cursor = db.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS frases(
+            id_frase INTEGER NOT NULL UNIQUE,
+            descripcion TEXT,
+            usuario TEXT,
+            PRIMARY KEY(id_frase AUTOINCREMENT)
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS tops(
+            id_top INTEGER NOT NULL UNIQUE,
+            link TEXT,
+            usuario TEXT,
+            PRIMARY KEY(id_top AUTOINCREMENT)
+        )
+    ''')
+
 
 bot.run('Nzg4MTM2MDcxMzA1MjMyMzk0.X9fG6g.8fyxKV5848JeWTjvk_Y8QCk046I')
