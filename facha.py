@@ -1,9 +1,11 @@
 import discord
 import sqlite3
 import random
+import imdb
 from discord.ext import commands
 
 bot = commands.Bot(command_prefix = '.')
+moviesDB = imdb.IMDb()
 
 @bot.event
 async def on_message(message):
@@ -27,6 +29,14 @@ async def on_ready():
             descripcion TEXT,
             usuario TEXT,
             PRIMARY KEY(id_frase AUTOINCREMENT)
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS tops(
+            id_top INTEGER NOT NULL UNIQUE,
+            link TEXT,
+            usuario TEXT,
+            PRIMARY KEY(id_top AUTOINCREMENT)
         )
     ''')
     await bot.change_presence(activity=discord.Game('esculpir el tiempo'))
@@ -98,12 +108,77 @@ def validate_frase(frase):
 
 
 @bot.command()
-async def tasBien(ctx):
-    await ctx.send(f'{round(bot.latency * 1000)}ms')
+async def buscame(ctx,*,movie_to_search):
+    movies = moviesDB.search_movie(movie_to_search)
+    cont = 1
+    await ctx.send("Estas son las que encontre: ")
+    for movie in movies:
+        if cont <= 5:
+            try:
+                title = movie['title']
+                year = movie['year']
+                await ctx.send(f'{title} - {year}')
+            except:
+                continue
+            finally:
+                cont += 1
+
+
 
 @bot.command()
-async def top(ctx):
-    await ctx.send("https://letterboxd.com/pastorvsky/list/mejores-peliculas-de-la-historia-top-100/")
+async def agregarTop(ctx,*,link_top):
+    autor = ctx.message.author.name
+    db = sqlite3.connect('main.sqlite')
+    cursor = db.cursor()
+    sql = ("INSERT INTO tops(link, usuario) VALUES (?,?)")
+    val = (link_top, autor)
+    try:
+        result = cursor.execute(sql, val)
+        await ctx.send("Top agregado товарищ!")
+    except Exception as exc:
+        await ctx.send('No anda nada cuando guardo el top: {}'.format(exc))
+    db.commit()
+    cursor.close()
+    db.close()
+
+
+
+def buscar_top(autor):
+    db = sqlite3.connect('main.sqlite')
+    cursor = db.cursor()
+    try:
+        cursor.execute(f"SELECT link FROM tops WHERE usuario = '{autor}'")
+        top_link = cursor.fetchone()
+        if top_link == None:
+            return "Todavia no existe un top para " + autor
+        else:
+            return top_link[0]
+    except Exception as exc:
+        print('Error al traer el top.')
+    finally:
+        cursor.close()
+        db.close()
+
+
+
+@bot.command()
+async def miTop(ctx):
+    autor = ctx.message.author.name
+    top = buscar_top(autor)
+    await ctx.send(top)
+
+
+
+@bot.command()
+async def top(ctx,*,usuario):
+    top = buscar_top(usuario)
+    await ctx.send(top)
+
+
+
+@bot.command()
+async def tasBien(ctx):
+    await ctx.send(f'{round(bot.latency * 1000)}ms')
 
 @bot.command()
 async def topless(ctx):
@@ -113,30 +188,6 @@ async def topless(ctx):
 async def stalker(ctx):
     await ctx.send("https://www.youtube.com/watch?v=TGRDYpCmMcM")
 
-@bot.command()
-async def zerkalo(ctx):
-    await ctx.send("https://www.youtube.com/watch?v=CYZhXm02kN0")
-
-@bot.command()
-async def offret(ctx):
-    await ctx.send("https://www.youtube.com/watch?v=PlV4k2GNGmo")
-
-@bot.command()
-async def nostalghia(ctx):
-    await ctx.send("https://www.youtube.com/watch?v=-gH1cprEg0w")
-
-@bot.command()
-async def andreyrublev(ctx):
-    await ctx.send("https://www.youtube.com/watch?v=OsEnNDr6YfA")
-
-@bot.command()
-async def ivanovo(ctx):
-    await ctx.send("https://www.youtube.com/watch?v=aRkPoF7iVGc")
-
-@bot.command()
-async def solyaris(ctx):
-    await ctx.send("https://www.youtube.com/watch?v=6-4KydP92ss")
-    await ctx.send("https://www.youtube.com/watch?v=xXa6XpaxBS0")
 
 @bot.command()
 async def infoChess(ctx):
