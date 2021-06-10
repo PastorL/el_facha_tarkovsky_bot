@@ -203,9 +203,6 @@ async def top(ctx,*,usuario):
 async def tasBien(ctx):
     await ctx.send(f'{round(bot.latency * 1000)}ms')
 
-@bot.command()
-async def topless(ctx):
-    await ctx.send("https://i0.wp.com/lecturassumergidas.com/wp-content/uploads/2016/10/image.jpg?resize=450%2C630&ssl=1")
 
 @bot.command()
 async def stalker(ctx):
