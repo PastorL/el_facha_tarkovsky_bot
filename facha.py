@@ -4,6 +4,7 @@ import imdb
 import psycopg2
 from discord.ext import commands
 
+
 bot = commands.Bot(command_prefix = '.')
 moviesDB = imdb.IMDb()
 PG_PW = open("PG_PW.txt", 'r').read()
@@ -14,6 +15,7 @@ db = psycopg2.connect(host = PG_HS, database = PG_DB, user = PG_US, password = P
 frases_respuestas = []
 servers_availables = []
 ignored_users = []
+
 
 
 @bot.event
@@ -31,6 +33,7 @@ async def on_message(message):
             await bot.process_commands(message)
         else:
             await ctx.send('No te haga el loco y anda a escribir al servidor.')
+
 
 
 @bot.event
@@ -88,7 +91,7 @@ async def insert_frase(ctx, frase, autor):
     if validate_frase(frase):
         cursor = db.cursor()
         server_name = ctx.message.guild.name
-        sql = (f"INSERT INTO frases(descripcion, usuario, server_name) VALUES ('{frase}','{autor}','{server_name}')")
+        sql = (f"INSERT INTO frases(descripcion, usuario, server_name) VALUES ('{get_frase(frase)}','{autor}','{server_name}')")
         try:
             result = cursor.execute(sql)
             await ctx.send("Frase agregada товарищ!")
@@ -105,11 +108,11 @@ async def delete_frase(ctx, frase, autor):
     if not validate_frase(frase):
         cursor = db.cursor()
         server_name = ctx.message.guild.name
-        sql = (f"DELETE FROM frases WHERE descripcion = '{frase}' AND server_name = '{server_name}'")
+        sql = (f"DELETE FROM frases WHERE descripcion = '{get_frase(frase)}' AND server_name = '{server_name}'")
         try:
             result = cursor.execute(sql)
             await ctx.send("Frase borrada товарищ!")
-            sql2 = (f"INSERT INTO frases_borradas(descripcion, autor_borrado) VALUES ('{frase}','{autor}')")
+            sql2 = (f"INSERT INTO frases_borradas(descripcion, autor_borrado) VALUES ('{get_frase(frase)}','{autor}')")
             result2 = cursor.execute(sql2)
         except Exception as exc:
             await ctx.send('No anda nada cuando borro las frases: {}'.format(exc))
@@ -123,7 +126,7 @@ async def delete_frase(ctx, frase, autor):
 def validate_frase(frase):
     cursor = db.cursor()
     try:
-        cursor.execute(f"SELECT COUNT (*) FROM frases WHERE descripcion = '{frase}'")
+        cursor.execute(f"SELECT COUNT (*) FROM frases WHERE descripcion = '{get_frase(frase)}'")
         result = 0
         result = cursor.fetchone()[0]
         if result == 0:
@@ -222,7 +225,7 @@ async def quienFueElHijoDePuta(ctx,*,frase):
     if await validate_pastor(ctx):
         cursor = db.cursor()
         try:
-            cursor.execute(f"SELECT usuario FROM frases WHERE descripcion = '{frase}'")
+            cursor.execute(f"SELECT usuario FROM frases WHERE descripcion = '{get_frase(frase)}'")
             culpable = cursor.fetchone()
             if culpable == None:
                 await ctx.send("Disculpe maestro pero no encontre esa frase.")
@@ -270,6 +273,11 @@ async def validate_pastor(ctx):
     else:
         await ctx.send("Quien te conoce pa? so boludo y no tene huevo.")
         return False
+
+
+
+def get_frase(frase):
+    return frase.replace("'", "´")
 
 
 
