@@ -22,17 +22,21 @@ ignored_users = []
 async def on_message(message):
     if message.author.name not in ignored_users:
         ctx = await bot.get_context(message)
-        if validate_server(ctx) or await validate_pastor(ctx):
-            if message.author == bot.user:
-                return
-            if message.author.name == 'PsiwareBot':
-                psiware_bot_frase = message.content
-                await insert_frase(ctx, psiware_bot_frase, 'PsiwareBot')
-            if message.content in frases_respuestas:
-                await frase(ctx)
-            await bot.process_commands(message)
+        if validate_server(ctx):
+            await process_message(ctx,message)
         else:
-            await ctx.send('No te haga el loco y anda a escribir al servidor.')
+            if await validate_pastor(ctx):
+                await process_message(ctx,message)
+            else:
+                await ctx.send('No te haga el loco y anda a escribir al servidor.')
+
+
+async def process_message(ctx,message):
+    if message.author == bot.user:
+        return
+    if message.content in frases_respuestas:
+        await frase(ctx)
+    await bot.process_commands(message)
 
 
 
@@ -280,6 +284,119 @@ def get_frase(frase):
     return frase.replace("'", "´")
 
 
+
+@bot.command()
+async def koke(ctx,*,koke):
+    if await validate_pastor(ctx):
+        cursor = db.cursor()
+        try:
+            cursor.execute(f"SELECT * FROM pokemones WHERE poke_name = '{get_frase(koke)}'")
+            kokemon = cursor.fetchone()
+            db.commit()
+            await ctx.send(f"Capturado: {kokemon[1]}")
+            await ctx.send(f"Shiny capturado: {kokemon[2]}")
+            await ctx.send(f"Viviendo: {kokemon[3]}")
+            await ctx.send(f"Shiny viviendo: {kokemon[4]}")
+        except Exception as exc:
+            await ctx.send(f"No pude traer la data del kokemon: {exc}")
+        finally:
+            cursor.close()
+
+
+
+@bot.command()
+async def shiny(ctx,*,koke):
+    if await validate_koke(ctx,koke):
+        cursor = db.cursor()
+        try:
+            cursor.execute(f"SELECT shiny_registered FROM pokemones WHERE poke_name = '{get_frase(koke)}'")
+            shiny_registered = cursor.fetchone()
+            if shiny_registered[0] == True:
+                cursor.execute(f"UPDATE pokemones SET shiny_registered = 'false' WHERE poke_name = '{get_frase(koke)}'")
+                await ctx.send(f"Actualizado: {koke} shiny no registrado.")
+            else:
+                cursor.execute(f"UPDATE pokemones SET shiny_registered = 'true' WHERE poke_name = '{get_frase(koke)}'")
+                await ctx.send(f"Actualizado: {koke} shiny registrado.")
+            db.commit()
+        except Exception as exc:
+            await ctx.send(f"No pude actualizar el koke shiny: {exc}")
+        finally:
+            cursor.close()
+
+
+
+@bot.command()
+async def registrado(ctx,*,koke):
+    if await validate_koke(ctx,koke):
+        cursor = db.cursor()
+        try:
+            cursor.execute(f"SELECT registered FROM pokemones WHERE poke_name = '{get_frase(koke)}'")
+            shiny_registered = cursor.fetchone()
+            if shiny_registered[0] == True:
+                cursor.execute(f"UPDATE pokemones SET registered = 'false' WHERE poke_name = '{get_frase(koke)}'")
+                await ctx.send(f"Actualizado: {koke} no registrado.")
+            else:
+                cursor.execute(f"UPDATE pokemones SET registered = 'true' WHERE poke_name = '{get_frase(koke)}'")
+                await ctx.send(f"Actualizado: {koke} registrado.")
+            db.commit()
+        except Exception as exc:
+            await ctx.send(f"No pude actualizar el koke: {exc}")
+        finally:
+            cursor.close()
+
+
+
+@bot.command()
+async def viviendo(ctx,*,koke_juego):
+    split_koke_juego = koke_juego.split(" ", 1)
+    koke = split_koke_juego[0]
+    juego = split_koke_juego[1]
+    if await validate_koke(ctx,koke):
+        cursor = db.cursor()
+        try:
+            cursor.execute(f"UPDATE pokemones SET game_living = '{get_frase(juego)}' WHERE poke_name = '{get_frase(koke)}'")
+            await ctx.send(f"Actualizado: {koke} ahora vive en Pokemon {juego}.")
+            db.commit()
+        except Exception as exc:
+            await ctx.send(f"No pude actualizar donde vive el koke: {exc}")
+        finally:
+            cursor.close()
+
+
+
+@bot.command()
+async def shinyViviendo(ctx,*,koke_juego):
+    split_koke_juego = koke_juego.split(" ", 1)
+    koke = split_koke_juego[0]
+    juego = split_koke_juego[1]
+    if await validate_koke(ctx,koke):
+        cursor = db.cursor()
+        try:
+            cursor.execute(f"UPDATE pokemones SET shiny_game_living = '{get_frase(juego)}' WHERE poke_name = '{get_frase(koke)}'")
+            await ctx.send(f"Actualizado: {koke} shiny ahora vive en Pokemon {juego}.")
+            db.commit()
+        except Exception as exc:
+            await ctx.send(f"No pude actualizar donde vive el koke shiny: {exc}")
+        finally:
+            cursor.close()
+
+
+
+async def validate_koke(ctx, koke):
+    cursor = db.cursor()
+    try:
+        cursor.execute(f"SELECT COUNT (*) FROM pokemones WHERE poke_name = '{get_frase(koke)}'")
+        result = 0
+        result = cursor.fetchone()[0]
+        if result != 0:
+            return True
+        else:
+            await ctx.send(f'Ese kokemon no existe rey.')
+            return False
+    except Exception as exc:
+        await ctx.send(f'Error al validar el kokemon: {exc}')
+    finally:
+        cursor.close()
 
 @bot.command()
 async def tasBien(ctx):
