@@ -31,12 +31,29 @@ async def on_message(message):
                 await ctx.send('No te haga el loco y anda a escribir al servidor.')
 
 
+
 async def process_message(ctx,message):
     if message.author == bot.user:
         return
-    if message.content in frases_respuestas:
+    if (message.content in frases_respuestas) or custom_responses(message.content):
         await frase(ctx)
     await bot.process_commands(message)
+
+
+
+def custom_responses(message):
+    if ('Facha' in message) and ('deci' in message):
+        return True
+    if ('facha' in message) and ('deci' in message):
+        return True
+    if ('Facha' in message) and ('?' in message):
+        return True
+    if ('facha' in message) and ('?' in message):
+        return True
+    if ('Facha' in message) and ('conta' in message):
+        return True
+    if ('facha' in message) and ('conta' in message):
+        return True
 
 
 
@@ -293,14 +310,52 @@ async def koke(ctx,*,koke):
             cursor.execute(f"SELECT * FROM pokemones WHERE poke_name = '{get_frase(koke)}'")
             kokemon = cursor.fetchone()
             db.commit()
-            await ctx.send(f"Capturado: {kokemon[1]}")
-            await ctx.send(f"Shiny capturado: {kokemon[2]}")
-            await ctx.send(f"Viviendo: {kokemon[3]}")
-            await ctx.send(f"Shiny viviendo: {kokemon[4]}")
+            await show_pokemon_data(ctx,kokemon)
         except Exception as exc:
             await ctx.send(f"No pude traer la data del kokemon: {exc}")
         finally:
             cursor.close()
+
+
+
+@bot.command()
+async def pokedex(ctx,*,id_koke):
+    if await validate_pastor(ctx):
+        cursor = db.cursor()
+        try:
+            cursor.execute(f"SELECT * FROM pokemones WHERE id_pokedex = '{get_frase(id_koke)}'")
+            kokemon = cursor.fetchone()
+            db.commit()
+            await show_pokemon_data(ctx,kokemon)
+        except Exception as exc:
+            await ctx.send(f"No pude traer la data del kokemon: {exc}")
+        finally:
+            cursor.close()
+
+
+
+async def show_pokemon_data(ctx,kokemon):
+    id_pokedex = '#'+str(kokemon[0]) if bool(kokemon[0]) else '\u200b'
+    registrado = kokemon[2] if bool(kokemon[2]) else '\u200b'
+    shiny_registrado = kokemon[3] if bool(kokemon[3]) else '\u200b'
+    viviendo = kokemon[4] if bool(kokemon[4]) else '\u200b'
+    shiny_viviendo = kokemon[5] if bool(kokemon[5]) else '\u200b'
+
+    embed = discord.Embed(
+        title=kokemon[1],
+        url='https://pokemon.fandom.com/es/wiki/'+kokemon[1],
+        color=0xFF5733
+    )
+    try:
+        embed.add_field(name='Id Pokedex:', value=id_pokedex, inline=False)
+        embed.add_field(name='Registrado:', value=registrado, inline=True)
+        embed.add_field(name='Viviendo:', value=viviendo, inline=True)
+        embed.add_field(name='\u200b', value='\u200b')
+        embed.add_field(name='Shiny registrado:', value=shiny_registrado, inline=True)
+        embed.add_field(name='Shiny viviendo:', value=shiny_viviendo, inline=True)
+    except exc:
+        print(exc)
+    await ctx.send(embed=embed)
 
 
 
@@ -397,6 +452,30 @@ async def validate_koke(ctx, koke):
         await ctx.send(f'Error al validar el kokemon: {exc}')
     finally:
         cursor.close()
+
+
+
+@bot.command()
+async def holasanti(ctx):
+    loc = ("xxx.xls")
+    wb = xlrd.open_workbook(loc)
+    sheet = wb.sheet_by_index(0)
+    rows = sheet.nrows
+    for i in range(rows):
+        id_pokedex = sheet.cell_value(i, 0)
+        id_x_pokedex = sheet.cell_value(i, 1)
+        poke_name = sheet.cell_value(i, 2)
+        cursor = db.cursor()
+        sql = (f"INSERT INTO  alola_pokemones(id_pokedex,id_alola_pokedex, poke_name) VALUES ({id_pokedex},{id_x_pokedex},'{get_frase(poke_name)}')")
+        try:
+            result = cursor.execute(sql)
+            print(f"SE INSERTO EL KOKEMON: {poke_name}")
+        except Exception as exc:
+            print("EXPLOTO UN KOKEMON")
+        db.commit()
+        cursor.close()
+
+
 
 @bot.command()
 async def tasBien(ctx):
