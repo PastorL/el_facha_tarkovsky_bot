@@ -99,11 +99,28 @@ async def frase(ctx):
     cursor = db.cursor()
     server_name = ctx.message.guild.name
     try:
+        #cursor.execute(f"SELECT descripcion FROM frases ORDER BY RANDOM() LIMIT 1")
         cursor.execute(f"SELECT descripcion FROM frases WHERE server_name='{server_name}' ORDER BY RANDOM() LIMIT 1")
         frase = cursor.fetchone()
         await ctx.send(frase[0])
     except Exception as exc:
         await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
+    cursor.close()
+
+
+
+@bot.command()
+async def review(ctx,*,movie):
+    cursor = db.cursor()
+    try:
+        cursor.execute(f"SELECT movie_name FROM stalkers_movies WHERE movie_name = '{get_frase(movie)}'")
+        movie = cursor.fetchone()
+        if movie == None:
+            await ctx.send('No que yo sepa')
+        else:
+            await ctx.send(f'{movie[0]} se hablo en el podcast, en un futuro te voy a decir en cual.')
+    except Exception as exc:
+        await ctx.send('No anda nada cuando busco el film: {}'.format(exc))
     cursor.close()
 
 
@@ -476,16 +493,17 @@ async def holasanti(ctx):
     sheet = wb.sheet_by_index(0)
     rows = sheet.nrows
     for i in range(rows):
-        id_pokedex = sheet.cell_value(i, 0)
-        id_x_pokedex = sheet.cell_value(i, 1)
-        poke_name = sheet.cell_value(i, 2)
+        movie_name = sheet.cell_value(i, 5)
+        imdb_link = sheet.cell_value(i, 6)
+        imdb_id = sheet.cell_value(i, 1)
         cursor = db.cursor()
-        sql = (f"INSERT INTO  alola_pokemones(id_pokedex,id_alola_pokedex, poke_name) VALUES ({id_pokedex},{id_x_pokedex},'{get_frase(poke_name)}')")
+        sql = (f"INSERT INTO  stalkers_movies(movie_name, imdb_link, imdb_id) VALUES ('{get_frase(movie_name)}','{get_frase(imdb_link)}','{get_frase(imdb_id)}')")
         try:
             result = cursor.execute(sql)
-            print(f"SE INSERTO EL KOKEMON: {poke_name}")
+            print(f"SE INSERTO EL KOKEMON: {movie_name}")
         except Exception as exc:
             print("EXPLOTO UN KOKEMON")
+            print(exc)
         db.commit()
         cursor.close()
 
