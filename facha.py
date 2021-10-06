@@ -523,4 +523,4 @@ async def limpiar_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('Hermano no me pediste nada.')
 
-bot.run('Nzg4MTM2MDcxMzA1MjMyMzk0.X9fG6g.8fyxKV5848JeWTjvk_Y8QCk046I')
+bot.run('discord bot token')
