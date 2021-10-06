@@ -10,10 +10,6 @@
 *~
 *.sass-cache
 main.sqlite
-PG_DB.txt
-PG_HS.txt
-PG_PW.txt
-PG_US.txt
 
 # OS or Editor folders
 .DS_Store
