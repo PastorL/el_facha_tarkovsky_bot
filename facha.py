@@ -2,6 +2,7 @@ import discord
 import random
 import imdb
 import psycopg2
+from datetime import date
 from discord.ext import commands
 
 
@@ -100,7 +101,7 @@ async def frase(ctx):
     server_name = ctx.message.guild.name
     try:
         #cursor.execute(f"SELECT descripcion FROM frases ORDER BY RANDOM() LIMIT 1")
-        cursor.execute(f"SELECT descripcion FROM frases WHERE server_name='{server_name}' ORDER BY RANDOM() LIMIT 1")
+        cursor.execute(f"SELECT descripcion FROM frases  ORDER BY RANDOM() LIMIT 1")
         frase = cursor.fetchone()
         await ctx.send(frase[0])
     except Exception as exc:
@@ -507,7 +508,27 @@ async def holasanti(ctx):
         db.commit()
         cursor.close()
 
+@bot.command()
+async def leon(ctx):
+    today = date.today()
+    if ((date(today.year, 12, 15) < today) or (today < date(today.year, 6, 15))):
+        if (date(today.year, 12,15) < today):
+            june_agilucho = date(today.year + 1, 6, 15)
+            remaining_days_to_agilucho = june_agilucho - today
+        else:
+            june_agilucho = date(today.year, 6, 15)
+            remaining_days_to_agilucho = june_agilucho - today
+    elif ((today.month == 7 and today.day == 15) or (today.month == 12 and today.day == 15)):
+        agilucho = "HOY SE COBRA EL LEON COMPAÑERES (o al menos eso deberíamos)"
+    else:
+        december_agilucho = date(today.year, 12, 15)
+        remaining_days_to_agilucho = december_agilucho - today
+    if remaining_days_to_agilucho.days == 1:
+        agilucho = f"Falta {remaining_days_to_agilucho.days} día para que llegue el león compañeres."
+    else:
+        agilucho = f"Faltan {remaining_days_to_agilucho.days} días para que llegue el león compañeres."
 
+    await ctx.send(agilucho + " https://www.youtube.com/watch?v=_LNd1y-8U_8")
 
 @bot.command()
 async def tasBien(ctx):
