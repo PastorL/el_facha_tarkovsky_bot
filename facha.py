@@ -100,8 +100,7 @@ async def frase(ctx):
     cursor = db.cursor()
     server_name = ctx.message.guild.name
     try:
-        #cursor.execute(f"SELECT descripcion FROM frases ORDER BY RANDOM() LIMIT 1")
-        cursor.execute(f"SELECT descripcion FROM frases  ORDER BY RANDOM() LIMIT 1")
+        cursor.execute(f"SELECT descripcion FROM frases WHERE server_name='{server_name}' ORDER BY RANDOM() LIMIT 1")
         frase = cursor.fetchone()
         await ctx.send(frase[0])
     except Exception as exc:
