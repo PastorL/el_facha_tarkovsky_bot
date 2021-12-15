@@ -507,6 +507,8 @@ async def holasanti(ctx):
         db.commit()
         cursor.close()
 
+
+
 @bot.command()
 async def leon(ctx):
     today = date.today()
@@ -544,6 +546,57 @@ async def leon(ctx):
     else:
         agilucho = f"Faltan {remaining_days_to_agilucho} días para que llegue el león compañeres."
         await ctx.send(agilucho + " https://www.youtube.com/watch?v=_LNd1y-8U_8")
+
+
+
+@bot.command()
+async def parmi(ctx):
+    cursor = db.cursor()
+    server_name = ctx.message.guild.name
+    try:
+        cursor.execute(f"SELECT parmi_frase FROM parmi_frases ORDER BY RANDOM() LIMIT 1")
+        frase = cursor.fetchone()
+        await ctx.send(frase[0])
+    except Exception as exc:
+        await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
+    cursor.close()
+
+
+
+@bot.command()
+async def addParmi(ctx,*,frase):
+    autor = ctx.message.author.name
+    if validate_parmi_frase(frase):
+        cursor = db.cursor()
+        server_name = ctx.message.guild.name
+        sql = (f"INSERT INTO parmi_frases(parmi_frase) VALUES ('{get_frase(frase)}')")
+        try:
+            result = cursor.execute(sql)
+            await ctx.send("Frase agregada товарищ!")
+        except Exception as exc:
+            await ctx.send('No anda nada cuando guarda las frases: {}'.format(exc))
+        db.commit()
+        cursor.close()
+    else:
+        await ctx.send("La frase ya existe сука блять!")
+
+
+
+def validate_parmi_frase(frase):
+    cursor = db.cursor()
+    try:
+        cursor.execute(f"SELECT COUNT (*) FROM parmi_frases WHERE parmi_frase = '{get_frase(frase)}'")
+        result = 0
+        result = cursor.fetchone()[0]
+        if result == 0:
+            return True
+        else:
+            return False
+    except Exception as exc:
+        print('Error al validar la frase.')
+    finally:
+        cursor.close()
+
 
 
 @bot.command()
