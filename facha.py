@@ -138,6 +138,19 @@ async def tegobi(ctx):
     cursor.close()
 
 
+@bot.command()
+async def lente(ctx):
+    cursor = db.cursor()
+    server_name = ctx.message.guild.name
+    try:
+        cursor.execute(f"SELECT lente_foto FROM lentes ORDER BY RANDOM() LIMIT 1")
+        frase = cursor.fetchone()
+        await ctx.send(frase[0])
+    except Exception as exc:
+        await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
+    cursor.close()
+
+
 
 async def insert_frase(ctx, frase, autor):
     if validate_frase(frase):
