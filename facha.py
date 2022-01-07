@@ -154,6 +154,41 @@ async def lente(ctx):
 
 
 @bot.command()
+async def pet(ctx):
+    cursor = db.cursor()
+    autor_name = ctx.message.author.name
+    try:
+        cursor.execute(f"SELECT pet_foto FROM pets ORDER BY RANDOM() LIMIT 1")
+        frase = cursor.fetchone()
+        await ctx.send(frase[0])
+    except Exception as exc:
+        await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
+    cursor.close()
+
+
+
+@bot.command()
+async def addPet(ctx, *, pet_foto):
+    cursor = db.cursor()
+    autor_name = ctx.message.author.name
+    print(pet_foto)
+    print(autor_name)
+    try:
+        cursor.execute(f"SELECT pet_foto FROM pets WHERE pet_owner = '{autor_name}'")
+        result = cursor.fetchone()
+        if result == None:
+            cursor.execute(f"INSERT INTO pets(pet_foto, pet_owner) VALUES('{pet_foto}', '{autor_name}')")
+        else:
+            cursor.execute(f"UPDATE pets SET pet_foto='{pet_foto}' WHERE pet_owner = '{autor_name}'")
+        db.commit()
+        await ctx.send('Pet agregada товарищ!'.format(exc))
+    except Exception as exc:
+        await ctx.send('No anda nada cuando actualizo las pets: {}'.format(exc))
+    cursor.close()
+
+
+
+@bot.command()
 async def poetic(ctx):
     await ctx.send("https://media.discordapp.net/attachments/713987937892565052/928998748309295114/88e.png")
 
