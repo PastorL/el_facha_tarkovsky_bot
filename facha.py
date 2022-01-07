@@ -138,6 +138,7 @@ async def tegobi(ctx):
     cursor.close()
 
 
+
 @bot.command()
 async def lente(ctx):
     cursor = db.cursor()
@@ -149,6 +150,12 @@ async def lente(ctx):
     except Exception as exc:
         await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
     cursor.close()
+
+
+
+@bot.command()
+async def poetic(ctx):
+    await ctx.send("https://media.discordapp.net/attachments/713987937892565052/928998748309295114/88e.png")
 
 
 
