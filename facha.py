@@ -181,7 +181,7 @@ async def addPet(ctx, *, pet_foto):
         else:
             cursor.execute(f"UPDATE pets SET pet_foto='{pet_foto}' WHERE pet_owner = '{autor_name}'")
         db.commit()
-        await ctx.send('Pet agregada товарищ!'.format(exc))
+        await ctx.send('Pet agregada товарищ!')
     except Exception as exc:
         await ctx.send('No anda nada cuando actualizo las pets: {}'.format(exc))
     cursor.close()
