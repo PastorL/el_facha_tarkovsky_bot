@@ -771,8 +771,9 @@ def validate_gartic_image(gartic_image):
 async def addFilm(ctx,film_name,film_link):
     added_user = ctx.message.author.name
     cursor = db.cursor()
+    film_name_lc = film_name.lower()
     try:
-        result = cursor.execute(f"INSERT INTO film_links(film_name, film_link, added_user) VALUES ('{film_name}', '{film_link}', '{added_user}')")
+        result = cursor.execute(f"INSERT INTO film_links(film_name, film_link, added_user) VALUES ('{film_name_lc}', '{film_link}', '{added_user}')")
         db.commit()
         await ctx.send("Link agregado товарищ!")
     except Exception as exc:
@@ -785,8 +786,9 @@ async def addFilm(ctx,film_name,film_link):
 @bot.command()
 async def filmLink(ctx,film_name):
     cursor = db.cursor()
+    film_name_lc = film_name.lower()
     try:
-        cursor.execute(f"SELECT film_name, film_link FROM film_links WHERE film_name LIKE '%{film_name}%' LIMIT 5")
+        cursor.execute(f"SELECT film_name, film_link FROM film_links WHERE film_name LIKE '%{film_name_lc}%' LIMIT 5")
         links = cursor.fetchall()
         film_index = 1
         for link in links:
