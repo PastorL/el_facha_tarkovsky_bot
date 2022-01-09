@@ -129,12 +129,13 @@ async def review(ctx,*,movie):
 async def tegobi(ctx):
     cursor = db.cursor()
     server_name = ctx.message.guild.name
-    try:
-        cursor.execute(f"SELECT tegobi_foto FROM tegobis ORDER BY RANDOM() LIMIT 1")
-        frase = cursor.fetchone()
-        await ctx.send(frase[0])
-    except Exception as exc:
-        await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
+    if validate_psigang(server_name):
+        try:
+            cursor.execute(f"SELECT tegobi_foto FROM tegobis ORDER BY RANDOM() LIMIT 1")
+            frase = cursor.fetchone()
+            await ctx.send(frase[0])
+        except Exception as exc:
+            await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
     cursor.close()
 
 
@@ -143,12 +144,13 @@ async def tegobi(ctx):
 async def lente(ctx):
     cursor = db.cursor()
     server_name = ctx.message.guild.name
-    try:
-        cursor.execute(f"SELECT lente_foto FROM lentes ORDER BY RANDOM() LIMIT 1")
-        frase = cursor.fetchone()
-        await ctx.send(frase[0])
-    except Exception as exc:
-        await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
+    if validate_psigang(server_name):
+        try:
+            cursor.execute(f"SELECT lente_foto FROM lentes ORDER BY RANDOM() LIMIT 1")
+            frase = cursor.fetchone()
+            await ctx.send(frase[0])
+        except Exception as exc:
+            await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
     cursor.close()
 
 
@@ -156,13 +158,15 @@ async def lente(ctx):
 @bot.command()
 async def pet(ctx):
     cursor = db.cursor()
+    server_name = ctx.message.guild.name
     autor_name = ctx.message.author.name
-    try:
-        cursor.execute(f"SELECT pet_foto FROM pets ORDER BY RANDOM() LIMIT 1")
-        frase = cursor.fetchone()
-        await ctx.send(frase[0])
-    except Exception as exc:
-        await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
+    if validate_psigang(server_name):
+        try:
+            cursor.execute(f"SELECT pet_foto FROM pets ORDER BY RANDOM() LIMIT 1")
+            frase = cursor.fetchone()
+            await ctx.send(frase[0])
+        except Exception as exc:
+            await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
     cursor.close()
 
 
@@ -171,19 +175,18 @@ async def pet(ctx):
 async def addPet(ctx, *, pet_foto):
     cursor = db.cursor()
     autor_name = ctx.message.author.name
-    print(pet_foto)
-    print(autor_name)
-    try:
-        cursor.execute(f"SELECT pet_foto FROM pets WHERE pet_owner = '{autor_name}'")
-        result = cursor.fetchone()
-        if result == None:
-            cursor.execute(f"INSERT INTO pets(pet_foto, pet_owner) VALUES('{pet_foto}', '{autor_name}')")
-        else:
-            cursor.execute(f"UPDATE pets SET pet_foto='{pet_foto}' WHERE pet_owner = '{autor_name}'")
-        db.commit()
-        await ctx.send('Pet agregada товарищ!')
-    except Exception as exc:
-        await ctx.send('No anda nada cuando actualizo las pets: {}'.format(exc))
+    if validate_psigang(server_name):
+        try:
+            cursor.execute(f"SELECT pet_foto FROM pets WHERE pet_owner = '{autor_name}'")
+            result = cursor.fetchone()
+            if result == None:
+                cursor.execute(f"INSERT INTO pets(pet_foto, pet_owner) VALUES('{pet_foto}', '{autor_name}')")
+            else:
+                cursor.execute(f"UPDATE pets SET pet_foto='{pet_foto}' WHERE pet_owner = '{autor_name}'")
+            db.commit()
+            await ctx.send('Pet agregada товарищ!')
+        except Exception as exc:
+            await ctx.send('No anda nada cuando actualizo las pets: {}'.format(exc))
     cursor.close()
 
 
@@ -585,12 +588,13 @@ async def leon(ctx):
 async def parmi(ctx):
     cursor = db.cursor()
     server_name = ctx.message.guild.name
-    try:
-        cursor.execute(f"SELECT parmi_frase FROM parmi_frases ORDER BY RANDOM() LIMIT 1")
-        frase = cursor.fetchone()
-        await ctx.send(frase[0])
-    except Exception as exc:
-        await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
+    if validate_psigang(server_name):
+        try:
+            cursor.execute(f"SELECT parmi_frase FROM parmi_frases ORDER BY RANDOM() LIMIT 1")
+            frase = cursor.fetchone()
+            await ctx.send(frase[0])
+        except Exception as exc:
+            await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
     cursor.close()
 
 
@@ -598,19 +602,20 @@ async def parmi(ctx):
 @bot.command()
 async def addParmi(ctx,*,frase):
     autor = ctx.message.author.name
-    if validate_parmi_frase(frase):
-        cursor = db.cursor()
-        server_name = ctx.message.guild.name
-        sql = (f"INSERT INTO parmi_frases(parmi_frase) VALUES ('{get_frase(frase)}')")
-        try:
-            result = cursor.execute(sql)
-            await ctx.send("Frase agregada товарищ!")
-        except Exception as exc:
-            await ctx.send('No anda nada cuando guarda las frases: {}'.format(exc))
-        db.commit()
-        cursor.close()
-    else:
-        await ctx.send("La frase ya existe сука блять!")
+    if validate_psigang(server_name):
+        if validate_parmi_frase(frase):
+            cursor = db.cursor()
+            server_name = ctx.message.guild.name
+            sql = (f"INSERT INTO parmi_frases(parmi_frase) VALUES ('{get_frase(frase)}')")
+            try:
+                result = cursor.execute(sql)
+                await ctx.send("Frase agregada товарищ!")
+            except Exception as exc:
+                await ctx.send('No anda nada cuando guarda las frases: {}'.format(exc))
+            db.commit()
+            cursor.close()
+        else:
+            await ctx.send("La frase ya existe сука блять!")
 
 
 
@@ -799,6 +804,16 @@ async def porcelLink(ctx,film_name):
         await ctx.send('Error al buscar el link.: {}'.format(exc))
     finally:
         cursor.close()
+
+
+
+def validate_psigang(server_name):
+    if server_name == 'Psigang':
+        return True
+    else:
+        return False
+
+
 
 
 @bot.command()
