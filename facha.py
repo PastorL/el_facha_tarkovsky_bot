@@ -768,7 +768,7 @@ def validate_gartic_image(gartic_image):
 
 
 @bot.command()
-async def addFilm(ctx,film_name,film_link):
+async def addPorcel(ctx,film_name,film_link):
     added_user = ctx.message.author.name
     cursor = db.cursor()
     film_name_lc = film_name.lower()
@@ -784,7 +784,7 @@ async def addFilm(ctx,film_name,film_link):
 
 
 @bot.command()
-async def filmLink(ctx,film_name):
+async def porcelLink(ctx,film_name):
     cursor = db.cursor()
     film_name_lc = film_name.lower()
     try:
