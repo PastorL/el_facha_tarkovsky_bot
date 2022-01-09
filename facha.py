@@ -716,6 +716,90 @@ def validate_cumpleanios_exists(server_name, autor_id):
 
 
 @bot.command()
+async def gartic(ctx):
+    cursor = db.cursor()
+    try:
+        cursor.execute(f"SELECT gartic_image FROM gartics ORDER BY RANDOM() LIMIT 1")
+        frase = cursor.fetchone()
+        await ctx.send(frase[0])
+    except Exception as exc:
+        await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
+    cursor.close()
+
+
+
+@bot.command()
+async def addGartic(ctx,*,gartic_image):
+    autor = ctx.message.author.name
+    if validate_gartic_image(gartic_image):
+        cursor = db.cursor()
+        server_name = ctx.message.guild.name
+        sql = (f"INSERT INTO gartics(gartic_image, gartic_user_added) VALUES ('{gartic_image}', '{autor}')")
+        try:
+            result = cursor.execute(sql)
+            await ctx.send("Imagen agregada товарищ!")
+        except Exception as exc:
+            await ctx.send('No anda nada cuando guarda la imagen: {}'.format(exc))
+        db.commit()
+        cursor.close()
+    else:
+        await ctx.send("La imagen ya existe сука блять!")
+
+
+
+def validate_gartic_image(gartic_image):
+    cursor = db.cursor()
+    try:
+        cursor.execute(f"SELECT COUNT (*) FROM gartics WHERE gartic_image = '{gartic_image}'")
+        result = 0
+        result = cursor.fetchone()[0]
+        if result == 0:
+            return True
+        else:
+            return False
+    except Exception as exc:
+        print("Error al validar la imagen.")
+    finally:
+        cursor.close()
+
+
+
+
+
+
+@bot.command()
+async def addFilm(ctx,film_name,film_link):
+    added_user = ctx.message.author.name
+    cursor = db.cursor()
+    try:
+        result = cursor.execute(f"INSERT INTO film_links(film_name, film_link, added_user) VALUES ('{film_name}', '{film_link}', '{added_user}')")
+        db.commit()
+        await ctx.send("Link agregado товарищ!")
+    except Exception as exc:
+        print("Error al guardar el link.")
+        await ctx.send('Error al guardar el link.: {}'.format(exc))
+    finally:
+        cursor.close()
+
+
+@bot.command()
+async def filmLink(ctx,film_name):
+    cursor = db.cursor()
+    try:
+        cursor.execute(f"SELECT film_name, film_link FROM film_links WHERE film_name LIKE '%{film_name}%' LIMIT 5")
+        links = cursor.fetchall()
+        film_index = 1
+        for link in links:
+            print(link)
+            await ctx.send(f"{film_index} - {link[0]} - {link[1]}")
+            film_index = film_index + 1
+    except Exception as exc:
+        await ctx.send('Error al buscar el link.: {}'.format(exc))
+    finally:
+        cursor.close()
+
+
+@bot.command()
 async def holasanti(ctx):
     print(ctx.message.author.name)
 
