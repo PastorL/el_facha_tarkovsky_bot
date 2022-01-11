@@ -175,6 +175,7 @@ async def pet(ctx):
 async def addPet(ctx, *, pet_foto):
     cursor = db.cursor()
     autor_name = ctx.message.author.name
+    server_name = ctx.message.guild.name
     if validate_psigang(server_name):
         try:
             cursor.execute(f"SELECT pet_foto FROM pets WHERE pet_owner = '{autor_name}'")
@@ -602,6 +603,7 @@ async def parmi(ctx):
 @bot.command()
 async def addParmi(ctx,*,frase):
     autor = ctx.message.author.name
+    server_name = ctx.message.guild.name
     if validate_psigang(server_name):
         if validate_parmi_frase(frase):
             cursor = db.cursor()
