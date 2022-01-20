@@ -36,6 +36,9 @@ async def on_message(message):
 async def process_message(ctx,message):
     if message.author == bot.user:
         return
+    if do_you_really(message.content):
+        await ctx.send("if we don’t try 😐 then what the fuck 🤬 is stopping 🇻🇳 us 🇨🇳 from just throwing 👐🏿🙆🏻 ourselves off a bridge 🌉, and giving 👉 up ⬆, and saying 💬 “Yeah the planet 🌎 is dying ☠. The government 💩 hates 😡 us 🚶🏻🚶🏼. The animals 🐕 are leaving 🚫😔. The aliens 🌌👽 aren’t contacting 📞 us 🚶🏻🚶🏼. We might 🔍 be alone 😴. It just might 🤔 be you 👆 and me.” But 🍑 that’s okay 👌. Because do you 👆 really 💯 need 👉 anyone 👩 else 😩!?")
+        await ctx.send("https://www.youtube.com/watch?v=Y4Fes8Up1tA")
     if (message.content in frases_respuestas) or custom_responses(message.content):
         await frase(ctx)
     await bot.process_commands(message)
@@ -56,6 +59,9 @@ def custom_responses(message):
     if ('facha' in message) and ('conta' in message):
         return True
 
+def do_you_really(message):
+    if ('Do you really need anyone else' in message) or ('do you really need anyone else' in message):
+        return True
 
 
 @bot.event
