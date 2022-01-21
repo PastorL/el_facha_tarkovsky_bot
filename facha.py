@@ -62,6 +62,8 @@ def custom_responses(message):
 def do_you_really(message):
     if ('Do you really need anyone else' in message) or ('do you really need anyone else' in message):
         return True
+    else:
+        return False
 
 
 @bot.event
