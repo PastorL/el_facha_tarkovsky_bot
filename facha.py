@@ -4,9 +4,11 @@ import imdb
 import psycopg2
 from datetime import date
 from discord.ext import commands
+from random import randint
 
-
-bot = commands.Bot(command_prefix = '.')
+intents = discord.Intents.default()
+intents.members = True
+bot = commands.Bot(intents = intents, command_prefix = '.')
 moviesDB = imdb.IMDb()
 PG_PW = open("PG_PW.txt", 'r').read()
 PG_DB = open("PG_DB.txt", 'r').read()
@@ -779,9 +781,6 @@ def validate_gartic_image(gartic_image):
 
 
 
-
-
-
 @bot.command()
 async def addPorcel(ctx,film_name,film_link):
     added_user = ctx.message.author.name
@@ -796,6 +795,7 @@ async def addPorcel(ctx,film_name,film_link):
         await ctx.send('Error al guardar el link.: {}'.format(exc))
     finally:
         cursor.close()
+
 
 
 @bot.command()
@@ -824,13 +824,26 @@ def validate_psigang(server_name):
         return False
 
 
+@bot.command()
+async def quienJuegaCS(ctx):
+    players_pool = []
+    players = []
+    for member in ctx.guild.members:
+        for role in member.roles:
+            if (role.name == "CSGO"):
+                players_pool.append(member)
+    for _ in range(5):
+        play = random.choice(players_pool)
+        player_index = players_pool.index(play)
+        players.append(play)
+        players_pool.pop(player_index)
+    for p in players:
+        await ctx.send(p.name)
 
 
 @bot.command()
 async def holasanti(ctx):
-    print(ctx.message.author.name)
-
-
+    await ctx.send("test")
 
 @bot.command()
 async def tasBien(ctx):
