@@ -359,6 +359,21 @@ async def quienFueElHijoDePuta(ctx,*,frase):
 
 
 
+@bot.command()
+async def lastFrase(ctx):
+    if await validate_pastor(ctx):
+        cursor = db.cursor()
+        server_name = ctx.message.guild.name
+        try:
+            cursor.execute(f"SELECT descripcion FROM frases WHERE server_name='{server_name}' ORDER BY id_frase DESC LIMIT 1")
+            frase = cursor.fetchone()
+            await ctx.send(frase[0])
+        except Exception as exc:
+            await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
+        cursor.close()
+
+
+
 def validate_server(ctx):
     server_name = None
     try:
@@ -392,7 +407,7 @@ async def validate_pastor(ctx):
     if autor == 186664188750462977:
         return True
     else:
-        await ctx.send("Quien te conoce pa? so boludo y no tene huevo.")
+        await ctx.send("Quien te conoce they? so bolude y no tene huevevarios.")
         return False
 
 
@@ -844,6 +859,7 @@ async def quienJuegaCS(ctx):
 @bot.command()
 async def holasanti(ctx):
     await ctx.send("test")
+
 
 @bot.command()
 async def tasBien(ctx):
