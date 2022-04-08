@@ -5,6 +5,7 @@ import psycopg2
 from datetime import date
 from discord.ext import commands
 from random import randint
+from table2ascii import table2ascii as t2a, PresetStyle
 
 intents = discord.Intents.default()
 intents.members = True
@@ -358,6 +359,112 @@ async def quienFueElHijoDePuta(ctx,*,frase):
             cursor.close()
 
 
+
+@bot.command()
+async def cargarPartida(ctx,*,data):
+    if await validate_pastor(ctx):
+        saved = 1
+        cursor = db.cursor()
+        game_data = data.split(',')
+        cursor.execute(f"SELECT id_cs_game FROM cs_games GROUP BY id_cs_game ORDER BY id_cs_game DESC LIMIT 1")
+        cs_games_quantity = int(cursor.fetchone()[0]) + 1
+        print(cs_games_quantity)
+        for player_data in game_data:
+             player = player_data.split(' ')
+             id_cs_player = player[0]
+             kills = player[1]
+             assists = player[2]
+             deaths = player[3]
+             score = player[4]
+             win = player[5]
+
+             try:
+                 cursor.execute(f"SELECT total_kills, total_assists, total_deaths, total_score, total_wins FROM cs_ranking WHERE id_cs_player = '{id_cs_player}'")
+                 result = cursor.fetchone()
+                 ranking_kills = result[0]
+                 ranking_assists = result[1]
+                 ranking_deaths = result[2]
+                 ranking_score = result[3]
+                 ranking_wins = result[4]
+
+                 total_kills = ranking_kills + int(kills)
+                 total_assists = ranking_assists + int(assists)
+                 total_deaths = ranking_deaths + int(deaths)
+                 total_score = ranking_score + int(score)
+                 total_wins = ranking_wins + int(win)
+
+
+                 cursor.execute(f"INSERT INTO cs_games(id_cs_game, id_cs_player, kills, assists, deaths, score, win) VALUES ({cs_games_quantity},'{id_cs_player}',{kills},{assists},{deaths},{score},{win})")
+                 cursor.execute(f"UPDATE cs_ranking SET total_kills = {total_kills}, total_assists = {total_assists}, total_deaths = {total_deaths}, total_score = {total_score}, total_wins = {total_wins} WHERE id_cs_player = '{id_cs_player}'")
+                 db.commit()
+             except Exception as exc:
+                 saved = 0
+                 await ctx.send('No anda nada cuando guardo el top: {}'.format(exc))
+        cursor.close()
+        if saved == 1:
+            await ctx.send('Data de partidas actualizada.')
+
+
+@bot.command()
+async def myStats(ctx):
+    id_cs_player = ctx.message.author.name
+    cursor = db.cursor()
+    try:
+        cursor.execute(f"SELECT COUNT(*) FROM cs_games WHERE id_cs_player = '{id_cs_player}'")
+        games_quantity = cursor.fetchone()[0]
+        cursor.execute(f"SELECT total_kills, total_assists, total_deaths, total_score, total_wins FROM cs_ranking WHERE id_cs_player='{id_cs_player}'")
+        player_data = cursor.fetchone()
+    except Exception as exc:
+        await ctx.send('No anda nada cuando traigo la data: {}'.format(exc))
+    kills = player_data[0]
+    assists = player_data[1]
+    deaths = player_data[2]
+    score = player_data[3]
+    wins = player_data[4]
+
+    media_kills = round(kills/games_quantity, 1)
+    media_assists = round(assists/games_quantity, 1)
+    media_deaths = round(deaths/games_quantity, 1)
+    media_score = round(score/games_quantity, 1)
+    media_wins = round(wins/games_quantity, 2)
+
+    output = t2a(
+        header = ['Games', 'Kills', 'Assists', 'Deaths', 'Score', 'Wins'],
+        body = [[games_quantity, kills, assists, deaths, score, wins], ['Media', media_kills, media_assists, media_deaths, media_score, media_wins]],
+        style=PresetStyle.thin_compact
+    )
+    embed = discord.Embed()
+    embed.add_field(name=id_cs_player, value=f"```\n{output}```")
+    await ctx.send(embed=embed)
+
+
+@bot.command()
+async def ranking(ctx):
+    cursor = db.cursor()
+    try:
+        cursor.execute(f"SELECT id_cs_player, total_kills, total_assists, total_deaths, total_score, total_wins FROM cs_ranking ORDER BY total_kills DESC")
+        players_data = cursor.fetchall()
+    except Exception as exc:
+        await ctx.send('No anda nada cuando traigo la data: {}'.format(exc))
+
+    body_data = []
+    for player_data in players_data:
+        player = player_data[0]
+        kills = player_data[1]
+        assists = player_data[2]
+        deaths = player_data[3]
+        score = player_data[4]
+        wins = player_data[5]
+        body_data.append([player, kills, assists, deaths, score, wins])
+
+    output = t2a(
+        header = ['Rata', 'Kills', 'Assists', 'Deaths', 'Score', 'Wins'],
+        body = body_data,
+        style=PresetStyle.thin_compact
+    )
+    embed = discord.Embed()
+    embed.add_field(name="Ranking", value=f"```\n{output}```")
+    await ctx.send(embed=embed)
 
 @bot.command()
 async def lastFrase(ctx):
