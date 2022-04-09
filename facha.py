@@ -359,7 +359,6 @@ async def quienFueElHijoDePuta(ctx,*,frase):
             cursor.close()
 
 
-
 @bot.command()
 async def cargarPartida(ctx,*,data):
     if await validate_pastor(ctx):
@@ -450,21 +449,83 @@ async def ranking(ctx):
     body_data = []
     for player_data in players_data:
         player = player_data[0]
+        try:
+            cursor.execute(f"SELECT COUNT(*) FROM cs_games WHERE id_cs_player = '{player}'")
+            games_quantity = cursor.fetchone()[0]
+        except Exception as exc:
+            await ctx.send('No anda nada cuando traigo la data: {}'.format(exc))
+
         kills = player_data[1]
         assists = player_data[2]
         deaths = player_data[3]
         score = player_data[4]
         wins = player_data[5]
-        body_data.append([player, kills, assists, deaths, score, wins])
+
+        body_data.append([player, kills, assists, deaths, score, games_quantity, wins])
 
     output = t2a(
-        header = ['Rata', 'Kills', 'Assists', 'Deaths', 'Score', 'Wins'],
+        header = ['Rata', 'Kills', 'Assists', 'Deaths', 'Score', 'Games', 'Wins'],
         body = body_data,
-        style=PresetStyle.thin_compact
+        style = PresetStyle.thin_compact
     )
     embed = discord.Embed()
     embed.add_field(name="Ranking", value=f"```\n{output}```")
     await ctx.send(embed=embed)
+
+
+def getMediaKills(elem):
+    return elem[1]
+
+
+@bot.command()
+async def mediaRanking(ctx):
+    cursor = db.cursor()
+    try:
+        cursor.execute(f"SELECT id_cs_player, total_kills, total_assists, total_deaths, total_score, total_wins FROM cs_ranking ORDER BY total_kills DESC")
+        players_data = cursor.fetchall()
+    except Exception as exc:
+        await ctx.send('No anda nada cuando traigo la data: {}'.format(exc))
+
+    body_data = []
+    for player_data in players_data:
+        player = player_data[0]
+        try:
+            cursor.execute(f"SELECT COUNT(*) FROM cs_games WHERE id_cs_player = '{player}'")
+            games_quantity = cursor.fetchone()[0]
+        except Exception as exc:
+            await ctx.send('No anda nada cuando traigo la data: {}'.format(exc))
+
+        kills = player_data[1]
+        assists = player_data[2]
+        deaths = player_data[3]
+        score = player_data[4]
+        wins = player_data[5]
+
+        media_kills = 0
+        media_assists = 0
+        media_deaths = 0
+        media_score = 0
+        media_wins = 0
+
+        if games_quantity != 0:
+            media_kills = round(kills/games_quantity, 1)
+            media_assists = round(assists/games_quantity, 1)
+            media_deaths = round(deaths/games_quantity, 1)
+            media_score = round(score/games_quantity, 1)
+            media_wins = round(wins/games_quantity, 2)
+
+        body_data.append([player, media_kills, media_assists, media_deaths, media_score, media_wins])
+
+    body_data.sort(key=getMediaKills, reverse=True)
+    output = t2a(
+        header = ['Rata', 'Kills/g', 'Assists/g', 'Deaths/g', 'Score/g', 'Wins/g'],
+        body = body_data,
+        style = PresetStyle.thin_compact
+    )
+    embed = discord.Embed()
+    embed.add_field(name="Ranking", value=f"```\n{output}```")
+    await ctx.send(embed=embed)
+
 
 @bot.command()
 async def lastFrase(ctx):
@@ -477,7 +538,6 @@ async def lastFrase(ctx):
     except Exception as exc:
         await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
     cursor.close()
-
 
 
 def validate_server(ctx):
