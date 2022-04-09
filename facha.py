@@ -468,16 +468,15 @@ async def ranking(ctx):
 
 @bot.command()
 async def lastFrase(ctx):
-    if await validate_pastor(ctx):
-        cursor = db.cursor()
-        server_name = ctx.message.guild.name
-        try:
-            cursor.execute(f"SELECT descripcion FROM frases WHERE server_name='{server_name}' ORDER BY id_frase DESC LIMIT 1")
-            frase = cursor.fetchone()
-            await ctx.send(frase[0])
-        except Exception as exc:
-            await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
-        cursor.close()
+    cursor = db.cursor()
+    server_name = ctx.message.guild.name
+    try:
+        cursor.execute(f"SELECT descripcion FROM frases WHERE server_name='{server_name}' ORDER BY id_frase DESC LIMIT 1")
+        frase = cursor.fetchone()
+        await ctx.send(frase[0])
+    except Exception as exc:
+        await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
+    cursor.close()
 
 
 
