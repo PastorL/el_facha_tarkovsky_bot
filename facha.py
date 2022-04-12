@@ -598,6 +598,10 @@ async def koke(ctx,*,koke):
             cursor.close()
 
 
+@bot.command()
+async def borralo(ctx):
+    await ctx.send(f"https://www.twitch.tv/nikozfps/clip/RefinedSwissTofuSpicyBoy-8tn0bytoyf4xHczc?filter=clips&range=all&sort=time")
+
 
 @bot.command()
 async def pokedex(ctx,*,id_koke):
