@@ -1028,6 +1028,7 @@ async def quienJuegaCS(ctx):
 
 @bot.command()
 async def holasanti(ctx):
+    #hola
     await ctx.send("test")
 
 
