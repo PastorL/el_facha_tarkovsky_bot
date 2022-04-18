@@ -1041,6 +1041,11 @@ async def tasBien(ctx):
 async def limpiar(ctx, amount=2):
     await ctx.channel.purge(limit=amount)
 
+@bot.command()
+@commands.has_permissions(manage_messages=True)
+async def megaLimpiar(ctx, amount):
+    await ctx.channel.purge(limit=int(amount))
+
 @limpiar.error
 async def limpiar_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
