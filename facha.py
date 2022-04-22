@@ -124,7 +124,7 @@ async def buscarFrase(ctx, frase):
     cursor = db.cursor()
     server_name = ctx.message.guild.name
     try:
-        cursor.execute(f"SELECT descripcion FROM frases WHERE server_name='{server_name}' AND descripcion LIKE '{frase}' ORDER BY RANDOM() LIMIT 1")
+        cursor.execute(f"SELECT descripcion FROM frases WHERE server_name='{server_name}' AND descripcion LIKE '%{frase}%' ORDER BY RANDOM() LIMIT 1")
         frase = cursor.fetchone()
         await ctx.send(frase[0])
     except Exception as exc:
