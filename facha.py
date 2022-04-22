@@ -119,6 +119,18 @@ async def frase(ctx):
     cursor.close()
 
 
+@bot.command()
+async def buscarFrase(ctx, frase):
+    cursor = db.cursor()
+    server_name = ctx.message.guild.name
+    try:
+        cursor.execute(f"SELECT descripcion FROM frases WHERE server_name='{server_name}' AND descripcion LIKE '{frase}' ORDER BY RANDOM() LIMIT 1")
+        frase = cursor.fetchone()
+        await ctx.send(frase[0])
+    except Exception as exc:
+        await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
+    cursor.close()
+
 
 @bot.command()
 async def review(ctx,*,movie):
@@ -1008,6 +1020,9 @@ def validate_psigang(server_name):
     else:
         return False
 
+@bot.command()
+async def tatakae(ctx):
+    await ctx.send("Susumi Tsuzukerunda. Shindemo, shinda atomo... Kore wa ... Tou san ga hajimeta ... Monogatari daro?")
 
 @bot.command()
 async def quienJuegaCS(ctx):
