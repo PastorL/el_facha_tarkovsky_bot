@@ -120,7 +120,7 @@ async def frase(ctx):
 
 
 @bot.command()
-async def buscarFrase(ctx, frase):
+async def buscarFrase(ctx, *, frase):
     cursor = db.cursor()
     server_name = ctx.message.guild.name
     try:
@@ -128,8 +128,9 @@ async def buscarFrase(ctx, frase):
         frase = cursor.fetchone()
         await ctx.send(frase[0])
     except Exception as exc:
-        await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
+        await ctx.send('No existe esa frase peconchatumaquina.')
     cursor.close()
+
 
 
 @bot.command()
@@ -1039,6 +1040,12 @@ async def quienJuegaCS(ctx):
         players_pool.pop(player_index)
     for p in players:
         await ctx.send(p.name)
+
+
+@bot.command()
+async def say(ctx,*,message):
+    await ctx.channel.purge(limit=1)
+    await ctx.send(message)
 
 
 @bot.command()
