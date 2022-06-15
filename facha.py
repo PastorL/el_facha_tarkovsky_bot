@@ -766,7 +766,7 @@ async def leon(ctx):
             june_agilucho = date(today.year, 6, 15)
             remaining_days_to_agilucho_date = june_agilucho - today
             remaining_days_to_agilucho = remaining_days_to_agilucho_date.days
-    elif ((today.month == 7 and today.day == 15) or (today.month == 12 and today.day == 15)):
+    elif ((today.month == 6 and today.day == 15) or (today.month == 12 and today.day == 15)):
         await ctx.send("https://www.youtube.com/watch?v=7K1aiBmcMjQ")
         await ctx.send("https://www.youtube.com/watch?v=6vYnas6q3Sg")
         await ctx.send("https://media.discordapp.net/attachments/689515574669082794/878087380144361502/unknown.png")
@@ -1047,6 +1047,22 @@ async def say(ctx,*,message):
     await ctx.channel.purge(limit=1)
     await ctx.send(message)
 
+
+@bot.command()
+async def perdonSantiBrueraQueTeCagoElLeonYNoContestoComoEsDebido(ctx,*,message):
+    await ctx.send("https://www.youtube.com/watch?v=7K1aiBmcMjQ")
+    await ctx.send("https://www.youtube.com/watch?v=6vYnas6q3Sg")
+    await ctx.send("https://media.discordapp.net/attachments/689515574669082794/878087380144361502/unknown.png")
+    await ctx.send("https://media.discordapp.net/attachments/714897041825726466/873295536269172736/unknown.png")
+    await ctx.send("https://media.discordapp.net/attachments/813481013618409582/860499861265580072/unknown.png")
+    await ctx.send("https://cdn.discordapp.com/attachments/820570406921961482/837177739697192980/CliqjX0y9eRCM8fv1IFzkik0FyqS5LB6_7cfpmeqn2sjeXKDFoUghClmkEqA5TPaGwQgrzlJNE4SWIGT1QCuUDUh9t6nd1KOhhTX.png")
+    await ctx.send("https://media.discordapp.net/attachments/820570406921961482/837176165223235594/qqTB3q3-0Muzfk7vgoYMoSl4mDLBb6__TQTyuP6Q4EklnBm0VgyfYnsrK50H5dtTgmnZna_JSI6rTSwaX0vVOc0r79xtnr-ggKuG.png")
+    await ctx.send("https://images-ext-1.discordapp.net/external/Ih8IWq13q9KZST9ErFHBxBE0Ed_TCwZbVS0k-eaNTCg/%3Fwidth%3D1170%26height%3D676/https/media.discordapp.net/attachments/714897041825726466/870763075257651210/unknown.png")
+    await ctx.send("https://images-ext-2.discordapp.net/external/dKS3FQH5nAGle6ysdYQYLV5O-cqx4Y7-ZIzmrq6RTn4/https/media.discordapp.net/attachments/689515574669082794/908784636375732224/unknown.png")
+    await ctx.send("https://images-ext-1.discordapp.net/external/6BnmKn9MGKFJ5P4xmBRal15E1bUwiDz38-fXDZePPSo/https/media.discordapp.net/attachments/820570406921961482/850645707656527882/unknown.png")
+    await ctx.send("https://images-ext-1.discordapp.net/external/WFjJlLxX0MEpNJ6pzt741G72omg2TFv7nWqT-8kGJVY/https/media.discordapp.net/attachments/689515574669082794/909364710909026345/unknown.png")
+    await ctx.send("https://media.discordapp.net/attachments/689515574669082794/861035382807330886/CSGO_-_Discord_2021-07-03_00-34-53.mp4")
+    await ctx.send("HOY SE COBRA EL LEON COMPAÑERES (o al menos eso deberíamos)")
 
 @bot.command()
 async def holasanti(ctx):
