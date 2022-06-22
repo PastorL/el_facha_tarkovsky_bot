@@ -621,7 +621,7 @@ async def pokedex(ctx,*,id_koke):
     if await validate_pastor(ctx):
         cursor = db.cursor()
         try:
-            cursor.execute(f"SELECT * FROM pokemones WHERE id_pokedex = '{get_frase(id_koke)}'")
+            cursor.execute(f"SELECT * FROM pokemones WHERE poke_name = '{get_frase(id_koke)}'")
             kokemon = cursor.fetchone()
             db.commit()
             await show_pokemon_data(ctx,kokemon)
