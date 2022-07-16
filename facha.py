@@ -541,6 +541,58 @@ async def mediaRanking(ctx):
 
 
 @bot.command()
+async def lastestMediaRanking(ctx):
+    cursor = db.cursor()
+    try:
+        cursor.execute(f"SELECT id_cs_player, total_kills, total_assists, total_deaths, total_score, total_wins FROM cs_ranking ORDER BY total_kills DESC")
+        players_data = cursor.fetchall()
+    except Exception as exc:
+        await ctx.send('No anda nada cuando traigo la data: {}'.format(exc))
+
+    body_data = []
+    games_quantity = 30
+    for player_data in players_data:
+        player = player_data[0]
+
+        try:
+            cursor.execute(f"SELECT SUM(kills), SUM(assists), SUM(deaths), SUM(score), SUM(win) FROM cs_games WHERE id_cs_player = '{player}' AND id_cs_game IN (SELECT id_cs_game FROM cs_games WHERE id_cs_player = '{player}' ORDER BY id_cs_game DESC LIMIT 30)")
+            data = cursor.fetchone()
+        except Exception as exc:
+            await ctx.send('No anda nada cuando traigo la data: {}'.format(exc))
+
+        kills = data[0]
+        assists = data[1]
+        deaths = data[2]
+        score = data[3]
+        wins = data[4]
+
+        media_kills = 0
+        media_assists = 0
+        media_deaths = 0
+        media_score = 0
+        media_wins = 0
+
+        if games_quantity != 0:
+            media_kills = round(kills/games_quantity, 1)
+            media_assists = round(assists/games_quantity, 1)
+            media_deaths = round(deaths/games_quantity, 1)
+            media_score = round(score/games_quantity, 1)
+            media_wins = round(wins/games_quantity, 2)
+
+        body_data.append([player, media_kills, media_assists, media_deaths, media_score, media_wins])
+
+    body_data.sort(key=getMediaKills, reverse=True)
+    output = t2a(
+        header = ['Rata', 'Kills/g', 'Assists/g', 'Deaths/g', 'Score/g', 'Wins/g'],
+        body = body_data,
+        style = PresetStyle.thin_compact
+    )
+    embed = discord.Embed()
+    embed.add_field(name="Ranking", value=f"```\n{output}```")
+    await ctx.send(embed=embed)
+
+
+@bot.command()
 async def lastFrase(ctx):
     cursor = db.cursor()
     server_name = ctx.message.guild.name
