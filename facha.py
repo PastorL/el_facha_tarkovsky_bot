@@ -24,6 +24,9 @@ ignored_users = []
 
 @bot.event
 async def on_message(message):
+    #ctx = await bot.get_context(message)
+    #for embed in message.embeds:
+    #    await message.add_reaction("✅")
     if message.author.name not in ignored_users:
         ctx = await bot.get_context(message)
         if validate_server(ctx):
@@ -1120,7 +1123,6 @@ async def perdonSantiBrueraQueTeCagoElLeonYNoContestoComoEsDebido(ctx,*,message)
 async def holasanti(ctx):
     #hola
     await ctx.send("test")
-
 
 @bot.command()
 async def tasBien(ctx):
