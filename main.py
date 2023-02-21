@@ -2,10 +2,15 @@ import discord
 import random
 import imdb
 import psycopg2
+import os
 from datetime import date
 from discord.ext import commands
 from random import randint
 from table2ascii import table2ascii as t2a, PresetStyle
+from dotenv import load_dotenv
+
+load_dotenv()
+BOT_TOKEN = os.getenv('BOT_TOKEN')
 
 intents = discord.Intents.default()
 intents.members = True
@@ -1144,4 +1149,4 @@ async def limpiar_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('Hermano no me pediste nada.')
 
-bot.run('Nzg4MTM2MDcxMzA1MjMyMzk0.X9fG6g.t-E01bK1FpsWzpJO-G6fSr_YcA4')
+bot.run(BOT_TOKEN)

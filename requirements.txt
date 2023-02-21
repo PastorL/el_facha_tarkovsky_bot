@@ -5,3 +5,4 @@ discord.py
 imdbpy
 psycopg2
 table2ascii
+python-dotenv
