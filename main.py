@@ -11,11 +11,7 @@ intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(intents = intents, command_prefix = '.')
 moviesDB = imdb.IMDb()
-PG_PW = open("PG_PW.txt", 'r').read()
-PG_DB = open("PG_DB.txt", 'r').read()
-PG_US = open("PG_US.txt", 'r').read()
-PG_HS = open("PG_HS.txt", 'r').read()
-db = psycopg2.connect(host = PG_HS, database = PG_DB, user = PG_US, password = PG_PW)
+#db = psycopg2.connect(host = PG_HS, database = PG_DB, user = PG_US, password = PG_PW)
 frases_respuestas = []
 servers_availables = []
 ignored_users = []
@@ -24,18 +20,17 @@ ignored_users = []
 
 @bot.event
 async def on_message(message):
-    #ctx = await bot.get_context(message)
-    #for embed in message.embeds:
-    #    await message.add_reaction("✅")
+
     if message.author.name not in ignored_users:
         ctx = await bot.get_context(message)
         if validate_server(ctx):
-            await process_message(ctx,message)
-        else:
-            if await validate_pastor(ctx):
+            if (True):
                 await process_message(ctx,message)
             else:
-                await ctx.send('No te haga el loco y anda a escribir al servidor.')
+                if await validate_pastor(ctx):
+                    await process_message(ctx,message)
+                else:
+                    await ctx.send('No te haga el loco y anda a escribir al servidor.')
 
 
 
@@ -71,6 +66,11 @@ def do_you_really(message):
     else:
         return False
 
+def do_you_really(message):
+    if ('Do you really need anyone else' in message) or ('do you really need anyone else' in message):
+        return True
+    else:
+        return False
 
 @bot.event
 async def on_ready():
@@ -115,6 +115,7 @@ async def frase(ctx):
     server_name = ctx.message.guild.name
     try:
         cursor.execute(f"SELECT descripcion FROM frases WHERE server_name='{server_name}' ORDER BY RANDOM() LIMIT 1")
+        #cursor.execute(f"SELECT descripcion FROM frases ORDER BY RANDOM() LIMIT 1")
         frase = cursor.fetchone()
         await ctx.send(frase[0])
     except Exception as exc:

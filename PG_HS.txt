@@ -1,1 +1,0 @@
-ec2-52-202-152-4.compute-1.amazonaws.com
