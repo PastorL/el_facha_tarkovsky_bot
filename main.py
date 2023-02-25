@@ -11,21 +11,53 @@ from dotenv import load_dotenv
 
 load_dotenv()
 BOT_TOKEN = os.getenv('BOT_TOKEN')
+DATABASE_URL = os.getenv('DATABASE_URL')
+PGDATABASE = os.getenv('PGDATABASE')
+PGHOST = os.getenv('PGHOST')
+PGPASSWORD = os.getenv('PGPASSWORD')
+PGPORT = os.getenv('PGPORT')
+PGUSER = os.getenv('PGUSER')
 
 intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(intents = intents, command_prefix = '.')
 moviesDB = imdb.IMDb()
-#db = psycopg2.connect(host = PG_HS, database = PG_DB, user = PG_US, password = PG_PW)
 frases_respuestas = []
 servers_availables = []
 ignored_users = []
+
+try:
+    db = psycopg2.connect(host = PGHOST, database = PGDATABASE, user = PGUSER, password = PGPASSWORD, port = PGPORT)
+except:
+    print("Falló la conexión a la base de datos.")
+
+
+
+@bot.event
+async def on_ready():
+    cursor = db.cursor()
+    try:
+        cursor.execute("SELECT frase_respuesta FROM frases_respuestas")
+        frases = cursor.fetchall()
+        for frase in frases:
+            frases_respuestas.append(frase[0])
+        cursor.execute("SELECT description FROM available_servers")
+        servers = cursor.fetchall()
+        for server in servers:
+            servers_availables.append(server[0])
+        cursor.execute("SELECT user_name FROM ignored_users")
+        ignored_users_db = cursor.fetchall()
+        for user in ignored_users_db:
+            ignored_users.append(user[0])
+    except Exception as exc:
+        print(f"No pude obtener las frases  y servidores a responder: {exc}")
+    await bot.change_presence(activity=discord.Game('esculpir el tiempo'))
+    print('Привет друзья!')
 
 
 
 @bot.event
 async def on_message(message):
-
     if message.author.name not in ignored_users:
         ctx = await bot.get_context(message)
         if validate_server(ctx):
@@ -36,6 +68,21 @@ async def on_message(message):
                     await process_message(ctx,message)
                 else:
                     await ctx.send('No te haga el loco y anda a escribir al servidor.')
+
+
+
+@bot.command()
+async def frase(ctx):
+    cursor = db.cursor()
+    server_name = ctx.message.guild.name
+    try:
+        cursor.execute(f"SELECT descripcion FROM frases WHERE server_name='{server_name}' ORDER BY RANDOM() LIMIT 1")
+        #cursor.execute(f"SELECT descripcion FROM frases ORDER BY RANDOM() LIMIT 1")
+        frase = cursor.fetchone()
+        await ctx.send(frase[0])
+    except Exception as exc:
+        await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
+    cursor.close()
 
 
 
@@ -65,38 +112,13 @@ def custom_responses(message):
     if ('facha' in message) and ('conta' in message):
         return True
 
-def do_you_really(message):
-    if ('Do you really need anyone else' in message) or ('do you really need anyone else' in message):
-        return True
-    else:
-        return False
+
 
 def do_you_really(message):
     if ('Do you really need anyone else' in message) or ('do you really need anyone else' in message):
         return True
     else:
         return False
-
-@bot.event
-async def on_ready():
-    cursor = db.cursor()
-    try:
-        cursor.execute("SELECT frase_respuesta FROM frases_respuestas")
-        frases = cursor.fetchall()
-        for frase in frases:
-            frases_respuestas.append(frase[0])
-        cursor.execute("SELECT description FROM available_servers")
-        servers = cursor.fetchall()
-        for server in servers:
-            servers_availables.append(server[0])
-        cursor.execute("SELECT user_name FROM ignored_users")
-        ignored_users_db = cursor.fetchall()
-        for user in ignored_users_db:
-            ignored_users.append(user[0])
-    except Exception as exc:
-        print(f"No pude obtener las frases  y servidores a responder: {exc}")
-    await bot.change_presence(activity=discord.Game('esculpir el tiempo'))
-    print('Привет друзья!')
 
 
 
@@ -112,20 +134,6 @@ async def deleteFrase(ctx,*,frase):
     autor = ctx.message.author.name
     await delete_frase(ctx, frase, autor)
 
-
-
-@bot.command()
-async def frase(ctx):
-    cursor = db.cursor()
-    server_name = ctx.message.guild.name
-    try:
-        cursor.execute(f"SELECT descripcion FROM frases WHERE server_name='{server_name}' ORDER BY RANDOM() LIMIT 1")
-        #cursor.execute(f"SELECT descripcion FROM frases ORDER BY RANDOM() LIMIT 1")
-        frase = cursor.fetchone()
-        await ctx.send(frase[0])
-    except Exception as exc:
-        await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
-    cursor.close()
 
 
 @bot.command()
