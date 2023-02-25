@@ -1,1 +1,1 @@
-worker: python facha.py
+worker: python main.py
