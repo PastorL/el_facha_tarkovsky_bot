@@ -34,6 +34,9 @@ async def command_extensions():
     await bot.load_extension('comandos_kokemone')
     await bot.load_extension('comandos_parmi')
     await bot.load_extension('comandos_rancios')
+    await bot.load_extension('comandos_piedra')
+    await bot.load_extension('comandos_achievements')
+    await bot.load_extension('comandos_objetivos')
 
 @bot.event
 async def on_ready():
@@ -76,6 +79,8 @@ async def on_message(message):
 async def process_message(ctx,message):
     if message.author == bot.user:
         return     
+    #if (message.content == '<@&789730850707079230>'):
+        #await ctx.send('https://www.instagram.com/p/CpnItRHP5hv/')
     if (message.content in frases_respuestas) or custom_responses(message.content):
         await comandos_frases.frase(ctx)
     await bot.process_commands(message)
