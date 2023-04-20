@@ -27,9 +27,10 @@ async def agregarAchi(ctx,*,achi_points):
 @commands.command()
 async def achis(ctx):
     try:
+        server_name = ctx.message.guild.name
         conn = connection.get_connection()
         cursor = conn.cursor()
-        cursor.execute(f"SELECT id_achievement, name, points FROM achievements")
+        cursor.execute(f"SELECT id_achievement, name, points FROM achievements WHERE server='{server_name}'")
         achis = cursor.fetchall()
     except Exception as exc:
         await ctx.send('No anda nada cuando traigo la data: {}'.format(exc))
