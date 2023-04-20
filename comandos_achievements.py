@@ -1,0 +1,151 @@
+from discord.ext import commands
+from table2ascii import table2ascii as t2a, PresetStyle
+import validations
+import connection
+import discord
+
+@commands.command()
+async def agregarAchi(ctx,*,achi_points):
+    if await validations.validate_pastor(ctx):
+        conn = connection.get_connection()
+        cursor = conn.cursor()
+        achi_points_list = achi_points.split(',')
+        achi = achi_points_list[0]
+        points = achi_points_list[1]
+        server_name = ctx.message.guild.name
+        sql = (f"INSERT INTO achievements(name, points, server) VALUES ('{get_achi(achi)}','{points}','{server_name}')")
+        try:
+            cursor.execute(sql)
+            conn.commit()
+            await ctx.send("Achivement agregado товарищ!")
+        except Exception as exc:
+            await ctx.send('No anda nada cuando guardo las frases: {}'.format(exc))
+        finally:
+            cursor.close()
+            conn.close()
+
+@commands.command()
+async def achis(ctx):
+    try:
+        conn = connection.get_connection()
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT id_achievement, name, points FROM achievements")
+        achis = cursor.fetchall()
+    except Exception as exc:
+        await ctx.send('No anda nada cuando traigo la data: {}'.format(exc))
+    finally:
+        cursor.close()
+        conn.close()
+
+    body_data = []
+    for data_achi in achis:
+        number = data_achi[0]
+        achi = data_achi[1]
+        points = data_achi[2]
+        body_data.append([number, achi, points])
+    output = t2a(
+        header = ['#', 'Achievement', 'Puntos'],
+        body = body_data,
+        style = PresetStyle.thin_compact
+    )
+    embed = discord.Embed()
+    embed.add_field(name="Achievements", value=f"```\n{output}```")
+    await ctx.send(embed=embed)
+
+@commands.command()
+async def misAchis(ctx):
+    user_id = ctx.message.author.name
+    try:
+        conn = connection.get_connection()
+        cursor = conn.cursor()
+        sql = ("SELECT achi.name, achi.points "
+                       "FROM user_achievements ua "
+                       "INNER JOIN achievements achi ON achi.id_achievement = ua.id_achi "
+                       f"WHERE ua.id_user='{user_id}'")
+        cursor.execute(sql)
+        user_achis = cursor.fetchall()
+    except Exception as exc:
+        await ctx.send('No anda nada cuando traigo la data: {}'.format(exc))
+    finally:
+        cursor.close()
+        conn.close()
+
+    body_data = []
+    total_points = 0
+    for user_achi in user_achis:
+        achi = user_achi[0]
+        points = user_achi[1]
+        total_points += points
+        body_data.append([achi, points, ''])
+    body_data.append(['', '', total_points])
+    output = t2a(
+        header = ['Achievement', 'Puntos', 'Total'],
+        body = body_data,
+        style = PresetStyle.thin_compact
+    )
+    embed = discord.Embed()
+    embed.add_field(name="Achievements de "+user_id, value=f"```\n{output}```")
+    await ctx.send(embed=embed)
+
+@commands.command()
+async def darAchi(ctx,*,user_achi):
+    if await validations.validate_pastor(ctx):
+        try:
+            user_achis = user_achi.split(',')
+            user_id = user_achis[0]
+            achi_id = user_achis[1]
+
+            conn = connection.get_connection()
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT id_achi FROM user_achievements WHERE id_user='{user_id}' AND id_achi = {achi_id}")
+            achi = cursor.fetchone()
+
+            if achi == None:
+                sql = (f"INSERT INTO user_achievements(id_user, id_achi) VALUES ('{user_id}','{achi_id}')")
+                cursor.execute(sql)
+                conn.commit()
+                await ctx.send("Achievement asignado товарищ.")
+            else:
+                await ctx.send("Disculpe maestro pero el usuario ya tiene ese achievement.")
+        except Exception as exc:
+            await ctx.send('No anda nada cuando asigno el achievement: {}'.format(exc))
+        finally:
+            cursor.close()
+            conn.close()
+
+@commands.command()
+async def quitarAchi(ctx,*,user_achi):
+    if await validations.validate_pastor(ctx):
+        try:
+            user_achis = user_achi.split(',')
+            user_id = user_achis[0]
+            achi_id = user_achis[1]
+
+            conn = connection.get_connection()
+            cursor = conn.cursor()
+            cursor.execute(f"SELECT id_achi FROM user_achievements WHERE id_user='{user_id}' AND id_achi={achi_id}")
+            achi = cursor.fetchone()
+
+            if achi != None:
+                sql = (f"DELETE FROM user_achievements WHERE id_user='{user_id}' AND id_achi={achi_id}")
+                cursor.execute(sql)
+                conn.commit()
+                await ctx.send("Achievement borrado товарищ.")
+            else:
+                await ctx.send("Disculpe maestro pero el usuario no tiene ese achievement.")
+        except Exception as exc:
+            await ctx.send('No anda nada cuando borro el achievement: {}'.format(exc))
+        finally:
+            cursor.close()
+            conn.close()
+
+def get_achi(achi):
+    return achi.replace("'", "´")
+
+async def setup(bot):
+    bot.add_command(agregarAchi)
+    bot.add_command(achis)
+    bot.add_command(misAchis)
+    bot.add_command(darAchi)
+    bot.add_command(quitarAchi)
+
