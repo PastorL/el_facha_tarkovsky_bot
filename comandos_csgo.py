@@ -30,7 +30,7 @@ async def cargarPartida(ctx,*,data):
         game_data = data.split(',')
         cursor.execute(f"SELECT id_cs_game FROM cs_games GROUP BY id_cs_game ORDER BY id_cs_game DESC LIMIT 1")
         cs_games_quantity = int(cursor.fetchone()[0]) + 1
-        print(cs_games_quantity)
+
         for player_data in game_data:
             player = player_data.split(' ')
             id_cs_player = player[0]
