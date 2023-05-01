@@ -1,8 +1,10 @@
 from discord.ext import commands
 from table2ascii import table2ascii as t2a, PresetStyle
+from math import floor
 import validations
 import connection
 import discord
+import DiscordUtils
 
 @commands.command()
 async def asignarObjetivo(ctx,*,user_goal):
@@ -102,22 +104,40 @@ async def format_goals(ctx,user_id):
         cursor.close()
         conn.close()
 
-    body_data = []
-    for user_achi in user_goals:
-        goal = user_achi[0]
-        if user_achi[1] == '0':
-            done = "No"
-        else:
-            done = "✓"
-        body_data.append([goal, done])
-    output = t2a(
-        header = ['Objetivo','Listo'],
-        body = body_data,
-        style = PresetStyle.thin_compact
-    )
-    embed = discord.Embed()
-    embed.add_field(name="Objetivos 2023 de "+user_id, value=f"```\n{output}```")
-    return embed
+    goal_sets = []
+    embeds = []
+    goal_number = 0
+    while len(user_goals) > 10:
+        goal_sets.append(user_goals[:10])
+        del user_goals[:10]
+    if len(user_goals) != 0:
+        goal_sets.append(user_goals[:10])
+        del user_goals[:10]
+
+    for goal_set in goal_sets:
+        body_data = []
+        for goal in goal_set:
+            if goal[1] == '0':
+                done = "No"
+            else:
+                done = "✓"
+            goal_number += 1
+            body_data.append([goal_number, goal[0], done])
+        output = t2a(
+            header = ['N°','Objetivo','Listo'],
+            body = body_data,
+            style = PresetStyle.thin_compact
+        )
+        embed = discord.Embed(color=ctx.author.color).add_field(name="Objetivos 2023 de "+user_id, value=f"```\n{output}```")
+        embeds.append(embed)
+
+    paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx)
+    paginator.add_reaction('⏮️', "first")
+    paginator.add_reaction('⏪', "back")
+    paginator.add_reaction('⏩', "next")
+    paginator.add_reaction('⏭️', "last")
+
+    return await paginator.run(embeds)
 
 def get_goal(goal):
     return goal.replace("'", "´")
