@@ -1,21 +1,14 @@
 import discord
-import os
 import connection
 import validations
 import comandos_frases
+import os
 from discord.ext import commands
-from random import randint
-from table2ascii import table2ascii as t2a, PresetStyle
+from deep_translator import GoogleTranslator
 from dotenv import load_dotenv
 
 load_dotenv()
 BOT_TOKEN = os.getenv('BOT_TOKEN')
-DATABASE_URL = os.getenv('DATABASE_URL')
-PGDATABASE = os.getenv('PGDATABASE')
-PGHOST = os.getenv('PGHOST')
-PGPASSWORD = os.getenv('PGPASSWORD')
-PGPORT = os.getenv('PGPORT')
-PGUSER = os.getenv('PGUSER')
 
 intents = discord.Intents.default()
 intents.members = True
@@ -113,6 +106,18 @@ async def ejecutar(ctx,*,sql):
         finally:
             cursor.close()
             conn.close()
+
+@bot.command()
+async def traduci(ctx,*,text):
+    translated = GoogleTranslator(source='auto', target='portuguese').translate(text)
+    await ctx.send(translated)
+
+@bot.command()
+async def traduciAl(ctx,*,text):
+    language_text = text.split(',')
+    language = language_text[0]
+    translated = GoogleTranslator(source='auto', target=f'{language}').translate(text[3:])
+    await ctx.send(translated)
 
 @bot.command()
 async def say(ctx,*,message):
