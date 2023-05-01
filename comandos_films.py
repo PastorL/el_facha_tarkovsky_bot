@@ -1,10 +1,10 @@
 import connection
 import random
 import validations
-import imdb
+from imdb import Cinemagoer
 from discord.ext import commands
 
-moviesDB = imdb.IMDb()
+moviesDB = Cinemagoer()
 
 @commands.command()
 async def review(ctx,*,movie):
