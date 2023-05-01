@@ -6,3 +6,6 @@ imdbpy
 psycopg2
 table2ascii
 python-dotenv
+deep_translator
+cinemagoer
+DiscordUtils
