@@ -1,6 +1,5 @@
 from discord.ext import commands
 from table2ascii import table2ascii as t2a, PresetStyle
-from math import floor
 import validations
 import connection
 import discord

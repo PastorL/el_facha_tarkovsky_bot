@@ -1,5 +1,4 @@
 import connection
-import random
 import validations
 from imdb import Cinemagoer
 from discord.ext import commands
