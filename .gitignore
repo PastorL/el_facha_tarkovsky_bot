@@ -11,3 +11,4 @@
 *.sass-cache
 main.sqlite
 .env
+__pycache__/
