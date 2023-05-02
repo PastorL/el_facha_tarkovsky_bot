@@ -30,6 +30,7 @@ async def command_extensions():
     await bot.load_extension('comandos_piedra')
     await bot.load_extension('comandos_achievements')
     await bot.load_extension('comandos_objetivos')
+    await bot.load_extension('comandos_ayuda')
 
 @bot.event
 async def on_ready():
