@@ -44,8 +44,8 @@ async def ayuda(ctx):
     paginator.add_reaction('⏪', "back")
     paginator.add_reaction('⏩', "next")
     paginator.add_reaction('⏭️', "last")
-
-    await ctx.send(await paginator.run(embeds))
+    embed = await paginator.run(embeds)
+    await ctx.send(embed)
 
 @commands.command()
 async def ayudaDe(ctx,command):

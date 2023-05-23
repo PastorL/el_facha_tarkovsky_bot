@@ -121,6 +121,10 @@ async def leon(ctx):
 async def perdonSantiBrueraQueTeCagoElLeonYNoContestoComoEsDebido(ctx):
     await printRanciadasDelLeon(ctx)
 
+@commands.command()
+async def fudanshiItsCocoFriday(ctx):
+    await ctx.send("https://media.discordapp.net/attachments/689515574669082794/1103456041351528518/image.png?width=539&height=539")
+
 async def printRanciadasDelLeon(ctx):
     await ctx.send("https://www.youtube.com/watch?v=7K1aiBmcMjQ")
     await ctx.send("https://www.youtube.com/watch?v=6vYnas6q3Sg")
