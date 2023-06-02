@@ -9,3 +9,4 @@ python-dotenv
 deep_translator
 cinemagoer
 DiscordUtils
+pyttsx3
