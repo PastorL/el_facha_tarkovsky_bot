@@ -1,6 +1,8 @@
 import connection
 import validations
 from discord.ext import commands
+import discord
+import pyttsx3
 
 @commands.command()
 async def frase(ctx):
@@ -14,6 +16,48 @@ async def frase(ctx):
         await ctx.send(frase[0])
     except Exception as exc:
         await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
+    finally:
+        cursor.close()
+        conn.close()
+
+@commands.command()
+async def habla(ctx):
+    conn = connection.get_connection()
+    cursor = conn.cursor()
+    server_name = ctx.message.guild.name
+    try:
+        cursor.execute(f"SELECT descripcion FROM frases WHERE server_name='{server_name}' AND descripcion NOT LIKE '%https%' ORDER BY RANDOM() LIMIT 1")
+        frase = cursor.fetchone()
+        engine = pyttsx3.init()
+        engine.setProperty("voice", "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_ES-MX_SABINA_11.0")
+        engine.save_to_file(frase[0], "hablacion.wav")
+        engine.runAndWait()
+        with open("hablacion.wav", "rb") as file:
+            await ctx.send(frase[0])
+            await ctx.send(file=discord.File(file))
+    except Exception as exc:
+        await ctx.send('No anda nada cuando traigo las frases: {}'.format(exc))
+    finally:
+        cursor.close()
+        conn.close()
+
+@commands.command()
+async def buscarHabla(ctx, *, frase):
+    conn = connection.get_connection()
+    cursor = conn.cursor()
+    server_name = ctx.message.guild.name
+    try:
+        cursor.execute(f"SELECT descripcion FROM frases WHERE server_name='{server_name}' AND LOWER(descripcion) LIKE '%{frase}%' AND descripcion NOT LIKE '%https%' ORDER BY RANDOM() LIMIT 1")
+        frase = cursor.fetchone()
+        engine = pyttsx3.init()
+        engine.setProperty("voice", "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_ES-MX_SABINA_11.0")
+        engine.save_to_file(frase[0], "hablacion.wav")
+        engine.runAndWait()
+        with open("hablacion.wav", "rb") as file:
+            await ctx.send(frase[0])
+            await ctx.send(file=discord.File(file))
+    except Exception as exc:
+        await ctx.send('No existe esa frase peconchatumaquina.')
     finally:
         cursor.close()
         conn.close()
@@ -141,3 +185,5 @@ async def setup(bot):
     bot.add_command(buscarFrase)
     bot.add_command(quienFueElBurro)
     bot.add_command(lastFrase)
+    bot.add_command(habla)
+    bot.add_command(buscarHabla)
