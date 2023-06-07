@@ -13,6 +13,7 @@ BOT_TOKEN = os.getenv('BOT_TOKEN')
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
+intents.voice_states = True
 bot = commands.Bot(intents = intents, command_prefix = '.')
 frases_respuestas = []
 servers_availables = []
@@ -31,6 +32,7 @@ async def command_extensions():
     await bot.load_extension('comandos_achievements')
     await bot.load_extension('comandos_objetivos')
     await bot.load_extension('comandos_ayuda')
+    await bot.load_extension('comandos_habla')
 
 @bot.event
 async def on_ready():
