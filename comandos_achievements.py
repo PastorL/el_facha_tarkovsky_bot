@@ -3,6 +3,7 @@ from table2ascii import table2ascii as t2a, PresetStyle
 import validations
 import connection
 import discord
+import DiscordUtils
 
 @commands.command()
 async def agregarAchi(ctx,*,achi_points):
@@ -38,20 +39,37 @@ async def achis(ctx):
         cursor.close()
         conn.close()
 
-    body_data = []
-    for data_achi in achis:
-        number = data_achi[0]
-        achi = data_achi[1]
-        points = data_achi[2]
-        body_data.append([number, achi, points])
-    output = t2a(
-        header = ['#', 'Achievement', 'Puntos'],
-        body = body_data,
-        style = PresetStyle.thin_compact
-    )
-    embed = discord.Embed()
-    embed.add_field(name="Achievements", value=f"```\n{output}```")
-    await ctx.send(embed=embed)
+    achis_sets = []
+    embeds = []
+    while len(achis) > 10:
+        achis_sets.append(achis[:5])
+        del achis[:5]
+    if len(achis) != 0:
+        achis_sets.append(achis[:5])
+        del achis[:5]
+
+    for achis_set in achis_sets:
+        body_data = []
+        for data_achi in achis_set:
+            number = data_achi[0]
+            achi = data_achi[1]
+            points = data_achi[2]
+            body_data.append([number, achi, points])
+        output = t2a(
+            header = ['#', 'Achievement', 'Puntos'],
+            body = body_data,
+            style = PresetStyle.thin_compact
+        )
+        embed = discord.Embed(color=ctx.author.color).add_field(name="Achievements", value=f"```\n{output}```")
+        embeds.append(embed)
+
+    paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx)
+    paginator.add_reaction('⏮️', "first")
+    paginator.add_reaction('⏪', "back")
+    paginator.add_reaction('⏩', "next")
+    paginator.add_reaction('⏭️', "last")
+    embed = await paginator.run(embeds)
+    await ctx.send(embed)
 
 @commands.command()
 async def misAchis(ctx):
@@ -71,22 +89,39 @@ async def misAchis(ctx):
         cursor.close()
         conn.close()
 
-    body_data = []
+    user_achis_sets = []
+    embeds = []
     total_points = 0
-    for user_achi in user_achis:
-        achi = user_achi[0]
-        points = user_achi[1]
-        total_points += points
-        body_data.append([achi, points, ''])
-    body_data.append(['', '', total_points])
-    output = t2a(
-        header = ['Achievement', 'Puntos', 'Total'],
-        body = body_data,
-        style = PresetStyle.thin_compact
-    )
-    embed = discord.Embed()
-    embed.add_field(name="Achievements de "+user_id, value=f"```\n{output}```")
-    await ctx.send(embed=embed)
+    while len(user_achis) > 10:
+        user_achis_sets.append(user_achis[:5])
+        del user_achis[:5]
+    if len(user_achis) != 0:
+        user_achis_sets.append(user_achis[:5])
+        del user_achis[:5]
+
+    for user_achi_set in user_achis_sets:
+        body_data = []
+        for user_achi in user_achi_set:
+            achi = user_achi[0]
+            points = user_achi[1]
+            total_points += points
+            body_data.append([achi, points, ''])
+        body_data.append(['', '', total_points])
+        output = t2a(
+            header = ['Achievement', 'Puntos', 'Total'],
+            body = body_data,
+            style = PresetStyle.thin_compact
+        )
+        embed = discord.Embed(color=ctx.author.color).add_field(name="Achievements de "+user_id, value=f"```\n{output}```")
+        embeds.append(embed)
+
+    paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx)
+    paginator.add_reaction('⏮️', "first")
+    paginator.add_reaction('⏪', "back")
+    paginator.add_reaction('⏩', "next")
+    paginator.add_reaction('⏭️', "last")
+    embed = await paginator.run(embeds)
+    await ctx.send(embed)
 
 @commands.command()
 async def darAchi(ctx,*,user_achi):
