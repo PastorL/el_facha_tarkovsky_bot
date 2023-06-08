@@ -41,7 +41,8 @@ async def achis(ctx):
 
     achis_sets = []
     embeds = []
-    while len(achis) > 10:
+    print(achis)
+    while len(achis) > 5:
         achis_sets.append(achis[:5])
         del achis[:5]
     if len(achis) != 0:
@@ -92,7 +93,7 @@ async def misAchis(ctx):
     user_achis_sets = []
     embeds = []
     total_points = 0
-    while len(user_achis) > 10:
+    while len(user_achis) > 5:
         user_achis_sets.append(user_achis[:5])
         del user_achis[:5]
     if len(user_achis) != 0:
@@ -106,7 +107,8 @@ async def misAchis(ctx):
             points = user_achi[1]
             total_points += points
             body_data.append([achi, points, ''])
-        body_data.append(['', '', total_points])
+        if user_achi_set == user_achis_sets[-1]:
+            body_data.append(['', '', total_points])
         output = t2a(
             header = ['Achievement', 'Puntos', 'Total'],
             body = body_data,
