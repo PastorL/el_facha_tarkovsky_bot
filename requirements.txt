@@ -13,3 +13,4 @@ DiscordUtils
 gtts
 asyncio
 ffmpeg
+openai

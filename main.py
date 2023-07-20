@@ -33,6 +33,7 @@ async def command_extensions():
     await bot.load_extension('comandos_objetivos')
     await bot.load_extension('comandos_ayuda')
     await bot.load_extension('comandos_habla')
+    await bot.load_extension('comandos_chatgpt')
 
 @bot.event
 async def on_ready():
