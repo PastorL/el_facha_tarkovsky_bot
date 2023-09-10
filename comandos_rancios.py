@@ -164,6 +164,35 @@ async def blue(ctx):
     await ctx.send(f"Dolar Blue para la compra: {venta.text}")
     await ctx.send(f"Dolar Blue para la venta: {compra.text}")
 
+@commands.command()
+async def tarea(ctx):
+    conn = connection.get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(f"SELECT tarea FROM tareas ORDER BY tarea DESC LIMIT 1")
+        frase = cursor.fetchone()
+        await ctx.send(frase[0])
+    except Exception as exc:
+        await ctx.send('No anda nada cuando traigo la tarea: {}'.format(exc))
+    finally:
+        cursor.close()
+        conn.close()
+
+@commands.command()
+async def addTarea(ctx,*,tarea):
+    conn = connection.get_connection()
+    cursor = conn.cursor()
+    if await validations.validate_pastor(ctx):
+        try:
+            cursor.execute(f"INSERT INTO tareas(tarea) VALUES('{tarea}')")
+            conn.commit()
+            await ctx.send('Tarea agregada товарищ!')
+        except Exception as exc:
+            await ctx.send('No anda nada cuando guardo la tarea: {}'.format(exc))
+        finally:
+            cursor.close()
+            conn.close()
+
 async def printRanciadasDelLeon(ctx):
     await ctx.send("https://www.youtube.com/watch?v=7K1aiBmcMjQ")
     await ctx.send("https://www.youtube.com/watch?v=6vYnas6q3Sg")
@@ -194,3 +223,5 @@ async def setup(bot):
     bot.add_command(limone)
     bot.add_command(limon)
     bot.add_command(blue)
+    bot.add_command(addTarea)
+    bot.add_command(tarea)
