@@ -46,21 +46,20 @@ async def buscarFrase(ctx, *, frase):
 
 @commands.command()
 async def quienFueElBurro(ctx,*,frase):
-    if await validations.validate_pastor(ctx):
-        conn = connection.get_connection()
-        cursor = conn.cursor()
-        try:
-            cursor.execute(f"SELECT usuario FROM frases WHERE descripcion = '{get_frase(frase)}'")
-            culpable = cursor.fetchone()
-            if culpable == None:
-                await ctx.send("Disculpe maestro pero no encontre esa frase.")
-            else:
-                await ctx.send(f"El hije de pute fue: {culpable[0]}")
-        except Exception as exc:
-            await ctx.send(f"Error al traer al hijo de puta: {exc}")
-        finally:
-            cursor.close()
-            conn.close()
+    conn = connection.get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(f"SELECT usuario FROM frases WHERE descripcion = '{get_frase(frase)}'")
+        culpable = cursor.fetchone()
+        if culpable == None:
+            await ctx.send("Disculpe maestro pero no encontre esa frase.")
+        else:
+            await ctx.send(f"El hije de pute fue: {culpable[0]}")
+    except Exception as exc:
+        await ctx.send(f"Error al traer al hijo de puta: {exc}")
+    finally:
+        cursor.close()
+        conn.close()
 
 @commands.command()
 async def lastFrase(ctx):

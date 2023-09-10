@@ -1,5 +1,9 @@
 import connection
 import validations
+import urllib
+import json
+import re
+from bs4 import BeautifulSoup
 from datetime import date
 from discord.ext import commands
 
@@ -125,6 +129,41 @@ async def perdonSantiBrueraQueTeCagoElLeonYNoContestoComoEsDebido(ctx):
 async def fudanshiItsCocoFriday(ctx):
     await ctx.send("https://media.discordapp.net/attachments/689515574669082794/1103456041351528518/image.png?width=539&height=539")
 
+@commands.command()
+async def coco(ctx):
+    await ctx.send("https://www.youtube.com/watch?v=6vYnas6q3Sg")
+
+@commands.command()
+async def limone(ctx):
+    await ctx.send("https://www.youtube.com/watch?v=0xOoJaA2OHk")
+
+@commands.command()
+async def limon(ctx):
+    url = 'https://app.ripio.com/api/v3/rates/USDC_ARS/'
+    hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'}
+    req = urllib.request.Request(url, headers=hdr)
+    resp = urllib.request.urlopen(req)
+    ripio_data = resp.read().decode('utf-8')
+    ripio_json = json.loads(ripio_data)
+    await ctx.send(f"USDC para la compra: {ripio_json['buy_rate']}")
+    await ctx.send(f"USDC para la venta: {ripio_json['sell_rate']}")
+    await ctx.send(f"USDC variación: {ripio_json['variation']}")
+
+@commands.command()
+async def blue(ctx):
+    url = 'https://www.valordolarblue.com.ar/'
+    hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'}
+    req = urllib.request.Request(url, headers=hdr)
+    resp = urllib.request.urlopen(req)
+    blue_data = resp.read().decode('utf-8')
+    soup = BeautifulSoup(blue_data, 'html.parser')
+    compra_div = soup.find('div', {'title': 'Precio de compra del Dólar Blue en la Argentina'})
+    venta_div = soup.find('div', {'title': 'Precio de venta del Dólar Blue en la Argentina'})
+    compra = compra_div.find('strong')
+    venta = venta_div.find('strong')
+    await ctx.send(f"Dolar Blue para la compra: {venta.text}")
+    await ctx.send(f"Dolar Blue para la venta: {compra.text}")
+
 async def printRanciadasDelLeon(ctx):
     await ctx.send("https://www.youtube.com/watch?v=7K1aiBmcMjQ")
     await ctx.send("https://www.youtube.com/watch?v=6vYnas6q3Sg")
@@ -151,3 +190,7 @@ async def setup(bot):
     bot.add_command(addPet)
     bot.add_command(leon)
     bot.add_command(perdonSantiBrueraQueTeCagoElLeonYNoContestoComoEsDebido)
+    bot.add_command(coco)
+    bot.add_command(limone)
+    bot.add_command(limon)
+    bot.add_command(blue)
