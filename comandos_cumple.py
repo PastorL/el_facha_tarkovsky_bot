@@ -9,11 +9,15 @@ async def cumple(ctx):
     cursor = conn.cursor()
     try:
         cursor.execute(f"SELECT discord_user, discord_id, fecha, cast(fecha + ((extract(year from age(fecha)) + 1) * interval '1' year) as date) as next_birthday from cumpleaños_fechas WHERE to_char(CURRENT_DATE,'MM') = to_char(cast(fecha + ((extract(year from age(fecha)) + 1) * interval '1' year) as date), 'MM') AND to_char(CURRENT_DATE,'DD') = to_char(cast(fecha + ((extract(year from age(fecha)) + 1) * interval '1' year) as date), 'DD')")
-        cumpleañero_del_dia = cursor.fetchone()
-        if cumpleañero_del_dia != None:
-            cumpleañero_tag = f"<@{cumpleañero_del_dia[1]}>"
-            await ctx.send(f'Hoy es el cumpleaños de {cumpleañero_tag}! С днем ​​рождения товарищ!')
+        cumpleañero_del_dia = cursor.fetchall()
+        print(cumpleañero_del_dia)
+        if cumpleañero_del_dia != []:
+            for cumpleañero in cumpleañero_del_dia:
+                cumpleañero_tag = f"<@{cumpleañero[1]}>"
+                await ctx.send(f'Hoy es el cumpleaños de {cumpleañero_tag}! С днем ​​рождения товарищ!')
+                await ctx.send("https://www.youtube.com/watch?v=UBGJOGNP0fI")
         else:
+            print("asdasd")
             cursor.execute(f"SELECT discord_user, discord_id, fecha, cast(fecha + ((extract(year from age(fecha)) + 1) * interval '1' year) as date) as next_birthday from cumpleaños_fechas WHERE discord_server = '{discord_server}' ORDER BY next_birthday asc LIMIT 1")
             cumpleaños_data = cursor.fetchone()
             cumpleañero = cumpleaños_data[0]

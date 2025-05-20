@@ -1,5 +1,9 @@
 import connection
 import validations
+import urllib
+import json
+import re
+from bs4 import BeautifulSoup
 from datetime import date
 from discord.ext import commands
 
@@ -125,6 +129,108 @@ async def perdonSantiBrueraQueTeCagoElLeonYNoContestoComoEsDebido(ctx):
 async def fudanshiItsCocoFriday(ctx):
     await ctx.send("https://media.discordapp.net/attachments/689515574669082794/1103456041351528518/image.png?width=539&height=539")
 
+@commands.command()
+async def coco(ctx):
+    await ctx.send("https://www.youtube.com/watch?v=6vYnas6q3Sg")
+
+@commands.command()
+async def limone(ctx):
+    await ctx.send("https://www.youtube.com/watch?v=0xOoJaA2OHk")
+
+@commands.command()
+async def limon(ctx):
+    url = 'https://app.ripio.com/api/v3/rates/USDC_ARS/'
+    hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'}
+    req = urllib.request.Request(url, headers=hdr)
+    resp = urllib.request.urlopen(req)
+    ripio_data = resp.read().decode('utf-8')
+    ripio_json = json.loads(ripio_data)
+    await ctx.send(f"USDC para la compra: {ripio_json['buy_rate']}")
+    await ctx.send(f"USDC para la venta: {ripio_json['sell_rate']}")
+    await ctx.send(f"USDC variación: {ripio_json['variation']}")
+
+@commands.command()
+async def blue(ctx):
+    url = 'https://www.valordolarblue.com.ar/'
+    hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'}
+    req = urllib.request.Request(url, headers=hdr)
+    resp = urllib.request.urlopen(req)
+    blue_data = resp.read().decode('utf-8')
+    soup = BeautifulSoup(blue_data, 'html.parser')
+    compra_div = soup.find('div', {'title': 'Precio de compra del Dólar Blue en la Argentina'})
+    venta_div = soup.find('div', {'title': 'Precio de venta del Dólar Blue en la Argentina'})
+    compra = compra_div.find('strong')
+    venta = venta_div.find('strong')
+    await ctx.send(f"Dolar Blue para la compra: {venta.text}")
+    await ctx.send(f"Dolar Blue para la venta: {compra.text}")
+
+@commands.command()
+async def tarea(ctx):
+    conn = connection.get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(f"SELECT tarea FROM tareas ORDER BY tarea DESC LIMIT 1")
+        frase = cursor.fetchone()
+        await ctx.send(frase[0])
+    except Exception as exc:
+        await ctx.send('No anda nada cuando traigo la tarea: {}'.format(exc))
+    finally:
+        cursor.close()
+        conn.close()
+
+@commands.command()
+async def addTarea(ctx,*,tarea):
+    conn = connection.get_connection()
+    cursor = conn.cursor()
+    if await validations.validate_pastor(ctx):
+        try:
+            cursor.execute(f"INSERT INTO tareas(tarea) VALUES('{tarea}')")
+            conn.commit()
+            await ctx.send('Tarea agregada товарищ!')
+        except Exception as exc:
+            await ctx.send('No anda nada cuando guardo la tarea: {}'.format(exc))
+        finally:
+            cursor.close()
+            conn.close()
+
+@commands.command()
+async def addGoles(ctx, *, goles):
+    conn = connection.get_connection()
+    cursor = conn.cursor()
+    id_user = ctx.message.author.name
+    try:
+        cursor.execute(f"SELECT id_user FROM goles WHERE id_user = '{id_user}'")
+        result = cursor.fetchone()
+        if result == None:
+            cursor.execute(f"INSERT INTO goles(id_user, goles) VALUES('{id_user}', '{goles}')")
+        else:
+            cursor.execute(f"SELECT goles FROM goles WHERE id_user = '{id_user}'")
+            goles_user = cursor.fetchone()[0]
+            goles_totales = goles_user + int(goles)
+            cursor.execute(f"UPDATE goles SET goles='{goles_totales}' WHERE id_user = '{id_user}'")
+        conn.commit()
+        await ctx.send('Goles sumados товарищ!')
+    except Exception as exc:
+        await ctx.send('No anda nada cuando actualizo los goles: {}'.format(exc))
+    finally:
+        cursor.close()
+        conn.close()
+
+@commands.command()
+async def misGoles(ctx):
+    conn = connection.get_connection()
+    cursor = conn.cursor()
+    id_user = ctx.message.author.name
+    try:
+        cursor.execute(f"SELECT goles FROM goles WHERE id_user = '{id_user}'")
+        result = cursor.fetchone()[0]
+        await ctx.send(result)
+    except Exception as exc:
+        await ctx.send('No anda nada cuando traigo los goles: {}'.format(exc))
+    finally:
+        cursor.close()
+        conn.close()
+
 async def printRanciadasDelLeon(ctx):
     await ctx.send("https://www.youtube.com/watch?v=7K1aiBmcMjQ")
     await ctx.send("https://www.youtube.com/watch?v=6vYnas6q3Sg")
@@ -151,3 +257,11 @@ async def setup(bot):
     bot.add_command(addPet)
     bot.add_command(leon)
     bot.add_command(perdonSantiBrueraQueTeCagoElLeonYNoContestoComoEsDebido)
+    bot.add_command(coco)
+    bot.add_command(limone)
+    bot.add_command(limon)
+    bot.add_command(blue)
+    bot.add_command(addTarea)
+    bot.add_command(tarea)
+    bot.add_command(addGoles)
+    bot.add_command(misGoles)
