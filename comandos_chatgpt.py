@@ -4,27 +4,22 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 load_dotenv()
-CHATGPT_API_KEY = os.getenv('CHATGPT_API_KEY')
-
-openai.api_key = CHATGPT_API_KEY
+openai.api_key = os.getenv('CHATGPT_API_KEY')
 
 @commands.command()
 async def chachi(ctx,*,prompt):
     response = chatgpt(prompt)
     await ctx.send(response)
 
-def chatgpt(prompt, model="gpt-3.5-turbo"):
+def chatgpt(message):
     response = openai.Completion.create(
-        engine=model,
-        prompt=prompt,
-        max_tokens=100,
-        n=1,
-        stop=None,
-        temperature=0.5,
+        engine="gpt-3.5-turbo-instruct",
+        prompt=message,
+        temperature=0.7,
+        max_tokens=100
     )
 
-    message = response.choices[0].text.strip()
-    return message
+    return response
 
 async def setup(bot):
     bot.add_command(chachi)

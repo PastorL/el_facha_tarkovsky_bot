@@ -193,6 +193,44 @@ async def addTarea(ctx,*,tarea):
             cursor.close()
             conn.close()
 
+@commands.command()
+async def addGoles(ctx, *, goles):
+    conn = connection.get_connection()
+    cursor = conn.cursor()
+    id_user = ctx.message.author.name
+    try:
+        cursor.execute(f"SELECT id_user FROM goles WHERE id_user = '{id_user}'")
+        result = cursor.fetchone()
+        if result == None:
+            cursor.execute(f"INSERT INTO goles(id_user, goles) VALUES('{id_user}', '{goles}')")
+        else:
+            cursor.execute(f"SELECT goles FROM goles WHERE id_user = '{id_user}'")
+            goles_user = cursor.fetchone()[0]
+            goles_totales = goles_user + int(goles)
+            cursor.execute(f"UPDATE goles SET goles='{goles_totales}' WHERE id_user = '{id_user}'")
+        conn.commit()
+        await ctx.send('Goles sumados товарищ!')
+    except Exception as exc:
+        await ctx.send('No anda nada cuando actualizo los goles: {}'.format(exc))
+    finally:
+        cursor.close()
+        conn.close()
+
+@commands.command()
+async def misGoles(ctx):
+    conn = connection.get_connection()
+    cursor = conn.cursor()
+    id_user = ctx.message.author.name
+    try:
+        cursor.execute(f"SELECT goles FROM goles WHERE id_user = '{id_user}'")
+        result = cursor.fetchone()[0]
+        await ctx.send(result)
+    except Exception as exc:
+        await ctx.send('No anda nada cuando traigo los goles: {}'.format(exc))
+    finally:
+        cursor.close()
+        conn.close()
+
 async def printRanciadasDelLeon(ctx):
     await ctx.send("https://www.youtube.com/watch?v=7K1aiBmcMjQ")
     await ctx.send("https://www.youtube.com/watch?v=6vYnas6q3Sg")
@@ -225,3 +263,5 @@ async def setup(bot):
     bot.add_command(blue)
     bot.add_command(addTarea)
     bot.add_command(tarea)
+    bot.add_command(addGoles)
+    bot.add_command(misGoles)

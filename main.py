@@ -26,7 +26,6 @@ async def command_extensions():
     await bot.load_extension('comandos_films')
     await bot.load_extension('comandos_gartic')
     await bot.load_extension('comandos_kokemone')
-    await bot.load_extension('comandos_parmi')
     await bot.load_extension('comandos_rancios')
     await bot.load_extension('comandos_piedra')
     await bot.load_extension('comandos_achievements')
@@ -34,6 +33,7 @@ async def command_extensions():
     await bot.load_extension('comandos_ayuda')
     await bot.load_extension('comandos_habla')
     await bot.load_extension('comandos_chatgpt')
+    await bot.load_extension('comandos_bolucompras')
 
 @bot.event
 async def on_ready():
@@ -76,24 +76,14 @@ async def on_message(message):
 async def process_message(ctx,message):
     if message.author == bot.user:
         return     
-    #if (message.content == '<@&789730850707079230>'):
-        #await ctx.send('https://www.instagram.com/p/CpnItRHP5hv/')
-    if (message.content in frases_respuestas) or custom_responses(message.content):
-        await comandos_frases.frase(ctx)
+    #if (message.content == 'mensage a capturar'):
+        #await ctx.send('mensaje a enviar')
+    if (custom_responses(message.content)):
+        await comandos_frases.frase_custom(ctx, message.content)
     await bot.process_commands(message)
 
 def custom_responses(message):
-    if ('Facha' in message) and ('deci' in message):
-        return True
-    if ('facha' in message) and ('deci' in message):
-        return True
-    if ('Facha' in message) and ('?' in message):
-        return True
-    if ('facha' in message) and ('?' in message):
-        return True
-    if ('Facha' in message) and ('conta' in message):
-        return True
-    if ('facha' in message) and ('conta' in message):
+    if ('Facha' in message) or ('facha' in message):
         return True
 
 @bot.command()
@@ -104,6 +94,8 @@ async def ejecutar(ctx,*,sql):
         try:
             cursor.execute(sql)
             conn.commit()
+            result = cursor.fetchall()
+            await ctx.send(result)
             await ctx.send("Ejecutado master.")
         except Exception as exc:
             await ctx.send(f"No pude ejecutar el sql: {exc}")
